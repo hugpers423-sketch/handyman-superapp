@@ -33,7 +33,8 @@ except ImportError:
 class ProductRecognitionService:
     """Reconocimiento de productos por imagen usando CLIP + FAISS"""
     
-    def __init__(self):
+    def __init__(self, db: AsyncSession = None):
+        self.db = db
         self.model = None
         self.preprocess = None
         self.device = "cuda" if ML_AVAILABLE and torch.cuda.is_available() else "cpu"

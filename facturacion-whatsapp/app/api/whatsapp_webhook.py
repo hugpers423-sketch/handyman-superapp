@@ -302,7 +302,8 @@ async def handle_create_invoice(
         await whatsapp_service.send_document(whatsapp_id, xml_url, f"Boleta_{invoice.series}-{invoice.number}.xml")
         
         items_text = "\n".join([
-            f"  {item['description']} x{item['quantity']} = S/ {item['total']:.2f}"
+            f"  {item['description']} x{item['quantity']} = "
+            f"S/ {item['quantity'] * item['unit_price']:.2f}"
             for item in data["items"]
         ])
         
