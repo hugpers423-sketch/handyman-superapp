@@ -239,7 +239,8 @@ class OCRService:
                 raise RuntimeError("EasyOCR requiere la pila ML (torch)")
             import easyocr
             logger.info("Cargando EasyOCR...")
-            self.reader = easyocr.Reader(settings.OCR_LANGUAGES, gpu=torch.cuda.is_available())
+            langs = list(settings.OCR_LANGUAGES)
+            self.reader = easyocr.Reader(langs, gpu=torch.cuda.is_available())
 
     async def extract_text(self, image_bytes: bytes) -> str:
         """Extraer texto de imagen"""

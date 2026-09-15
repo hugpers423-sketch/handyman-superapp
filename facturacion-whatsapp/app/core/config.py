@@ -33,13 +33,13 @@ class Settings(BaseSettings):
     WHISPER_MODEL: str = "base"  # tiny, base, small, medium, large
     WHISPER_DEVICE: str = "cpu"  # cpu, cuda
 
-    # Product Recognition (CLIP)
-    CLIP_MODEL: str = "openai/clip-vit-base-patch32"
+    # Product Recognition (CLIP) - nombre del modelo openai/CLIP (RN50, ViT-B/32, ...)
+    CLIP_MODEL: str = "RN50"
     PRODUCT_SIMILARITY_THRESHOLD: float = 0.82
     MAX_PRODUCT_IMAGES: int = 5
 
     # OCR (Tesseract via pytesseract or easyocr)
-    OCR_LANGUAGES: list = ["spa", "eng"]
+    OCR_LANGUAGES: list = ["es", "en"]
 
     # Security
     SECRET_KEY: str = "change-me-in-production-very-long-secret-key"
