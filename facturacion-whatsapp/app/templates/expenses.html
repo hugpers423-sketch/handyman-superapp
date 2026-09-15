@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Gastos - FacturaBot{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Gastos</h2>
+            <p class="text-gray-500 mt-1">Controla tus gastos para ver tu utilidad real</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="openModal('expenseModal')" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition flex items-center gap-2">
+                <i class="fas fa-plus"></i> Nuevo Gasto
+            </button>
+            <a href="/dashboard/export/expenses.xlsx" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2">
+                <i class="fas fa-file-excel"></i> Exportar
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Ventas del Mes</p>
+            <p class="text-2xl font-bold text-blue-600 mt-1">S/ {{ "{:,.2f}".format(profit.sales.total) }}</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Gastos del Mes</p>
+            <p class="text-2xl font-bold text-red-600 mt-1">S/ {{ "{:,.2f}".format(summary.total_expenses) }}</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Utilidad Bruta</p>
+            <p class="text-2xl font-bold {% if profit.profit.gross_profit >= 0 %}text-green-600{% else %}text-red-600{% endif %} mt-1">S/ {{ "{:,.2f}".format(profit.profit.gross_profit) }}</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Margen</p>
+            <p class="text-2xl font-bold {% if profit.profit.margin_percent >= 0 %}text-green-600{% else %}text-red-600{% endif %} mt-1">{{ "{:.1f}".format(profit.profit.margin_percent) }}%</p>
+        </div>
+    </div>
+
+    <!-- Expense by category breakdown -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Gastos por Categoría</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+                {% set total_expenses = summary.total_expenses %}
+                {% for cat in summary.by_category %}
+                {% set cat_pct = (cat.total / total_expenses * 100) if total_expenses else 0 %}
+                <div>
+                    <div class="flex items-center justify-between text-sm mb-1">
+                        <span class="text-gray-600">{{ cat.category.replace('_', ' ').title() }}</span>
+                        <span class="font-medium text-gray-900">
+                            S/ {{ "{:,.2f}".format(cat.total) }}
+                            <span class="text-gray-400">({{ "{:.1f}".format(cat_pct) }}%)</span>
+                        </span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-red-500 h-2 rounded-full" style="width: {{ cat_pct }}%"></div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-sm">Sin gastos este mes</p>
+                {% endfor %}
+            </div>
+            <div>
+                <canvas id="expenseChart" 
+                        data-labels='{{ summary.by_category | map(attribute="category") | map("replace", "_", " ") | map("title") | list | tojson }}'
+                        data-values='{{ summary.by_category | map(attribute="total") | list | tojson }}'>
+                </canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">Gastos Recientes</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proveedor</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Documento</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pago</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for expense in expenses %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-700">{{ expense.expense_date.strftime("%d/%m/%Y") }}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 rounded-full text-xs font-medium 
+                                {% if expense.category == 'rent' %}bg-blue-100 text-blue-800
+                                {% elif expense.category == 'salaries' %}bg-purple-100 text-purple-800
+                                {% elif expense.category == 'inventory' %}bg-green-100 text-green-800
+                                {% elif expense.category == 'transport' %}bg-orange-100 text-orange-800
+                                {% elif expense.category == 'services' %}bg-teal-100 text-teal-800
+                                {% elif expense.category == 'supplies' %}bg-yellow-100 text-yellow-800
+                                {% elif expense.category == 'marketing' %}bg-pink-100 text-pink-800
+                                {% else %}bg-gray-100 text-gray-700{% endif %}">
+                                {{ expense.category.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">{{ expense.description or '-' }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            {% if expense.supplier_name %}
+                            <div>
+                                <p>{{ expense.supplier_name }}</p>
+                                <p class="text-xs text-gray-400">{{ expense.supplier_doc or '' }}</p>
+                            </div>
+                            {% else %} - {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {% if expense.series and expense.number %}
+                            {{ expense.document_type == '01' and 'Factura' or 'Boleta' }} {{ expense.series }}-{{ "%08d"|format(expense.number) }}
+                            {% else %} - {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                {{ expense.payment_method }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right font-semibold text-gray-900">S/ {{ "{:,.2f}".format(expense.amount) }}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="if(confirm('¿Eliminar este gasto?')){ fetch('/dashboard/api/expenses/{{ expense.id }}', {method: 'DELETE'}).then(r=>location.reload()) }"
+                                    class="text-gray-400 hover:text-red-600 transition p-2">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fas fa-receipt text-3xl mb-2"></i>
+                            <p>No hay gastos este mes. ¡Registra tu primer gasto con el botón!</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Nuevo gasto -->
+<div id="expenseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-lg">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-gray-900">Registrar Gasto</h3>
+            <button onclick="closeModal('expenseModal')" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form method="POST" action="/dashboard/expenses/new" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                    <select name="category" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <option value="rent">Alquiler</option>
+                        <option value="salaries">Sueldos</option>
+                        <option value="inventory">Compra de Mercadería</option>
+                        <option value="transport">Transporte</option>
+                        <option value="services">Servicios (luz, agua, internet)</option>
+                        <option value="supplies">Suministros</option>
+                        <option value="marketing">Publicidad / Marketing</option>
+                        <option value="taxes">Impuestos</option>
+                        <option value="other">Otros</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                    <input type="date" name="expense_date" value="{{ now.strftime('%Y-%m-%d') }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                <input type="text" name="description" placeholder="Ej: Alquiler local Gamarra" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Monto (S/)</label>
+                <input type="number" step="0.01" min="0" name="amount" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Método de Pago</label>
+                    <select name="payment_method" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="EFECTIVO">Efectivo</option>
+                        <option value="YAPE">Yape</option>
+                        <option value="PLIN">Plin</option>
+                        <option value="TARJETA">Tarjeta</option>
+                        <option value="TRANSFERENCIA">Transferencia</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
+                    <input type="text" name="supplier_name" placeholder="Nombre" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">RUC/DNI Proveedor</label>
+                    <input type="text" name="supplier_doc" placeholder="Documento" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Documento</label>
+                    <div class="flex gap-2">
+                        <select name="document_type" class="w-1/3 px-2 py-2 border border-gray-300 rounded-lg">
+                            <option value="01">F</option>
+                            <option value="03">B</option>
+                        </select>
+                        <input type="text" name="series" placeholder="F001" class="w-1/3 px-2 py-2 border border-gray-300 rounded-lg">
+                        <input type="number" name="number" placeholder="N°" class="w-1/3 px-2 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 pt-4">
+                <button type="button" onclick="closeModal('expenseModal')" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancelar</button>
+                <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition">Guardar Gasto</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
+
+// Expense Chart
+const expenseCanvas = document.getElementById('expenseChart');
+if (expenseCanvas && expenseCanvas.dataset.labels) {
+    const labels = JSON.parse(expenseCanvas.dataset.labels);
+    const values = JSON.parse(expenseCanvas.dataset.values);
+    new Chart(expenseCanvas, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f97316', '#14b8a6', '#eab308', '#ec4899', '#ef4444', '#6b7280'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { size: 11 } } }
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Plantillas WhatsApp - FacturaBot{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Plantillas WhatsApp</h2>
+            <p class="text-gray-500 mt-1">Mensajes programados aprobados por Meta para comunicación proactiva</p>
+        </div>
+        <button onclick="openModal('templateModal')" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition flex items-center gap-2">
+            <i class="fas fa-plus"></i> Nueva Plantilla
+        </button>
+    </div>
+
+    <!-- Info banner -->
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
+        <i class="fas fa-info-circle text-blue-600 mt-1"></i>
+        <div>
+            <p class="text-sm text-blue-800">
+                <strong>¿Qué son las plantillas?</strong> WhatsApp Business API requiere plantillas aprobadas para mensajes proactivos (fuera de la ventana de 24 horas).
+            </p>
+            <p class="text-xs text-blue-600 mt-1">Usadas para: recordatorios de pago, promociones, confirmaciones de pedido, reportes y más.</p>
+        </div>
+    </div>
+
+    <!-- Templates grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for template in templates %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+            <!-- Header: name + category -->
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <h3 class="font-semibold text-gray-900">{{ template.name }}</h3>
+                    <span class="px-2 py-0.5 rounded-full text-xs font-medium
+                        {% if template.meta_status == 'approved' %}bg-green-100 text-green-800
+                        {% elif template.meta_status == 'pending' %}bg-yellow-100 text-yellow-800
+                        {% elif template.meta_status == 'rejected' %}bg-red-100 text-red-800
+                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                        {{ template.meta_status or 'n/a' }}
+                    </span>
+                </div>
+                <span class="text-xs text-gray-400">{{ template.category }}</span>
+            </div>
+            
+            <!-- Body -->
+            <div class="p-4 flex-1">
+                <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                    {% if template.header_text %}
+                    <p class="text-sm font-medium text-gray-700 mb-1">{{ template.header_text }}</p>
+                    {% endif %}
+                    <p class="text-sm text-gray-600 whitespace-pre-line">{{ template.body_text }}</p>
+                    {% if template.footer_text %}
+                    <p class="text-xs text-gray-400 mt-2 border-t border-gray-200 pt-2">{{ template.footer_text }}</p>
+                    {% endif %}
+                </div>
+                
+                {% if template.buttons %}
+                <div class="flex flex-wrap gap-2 mt-3">
+                    {% for button in template.buttons %}
+                    <span class="px-2 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-600">
+                        {{ button.type }}: {{ button.text }}
+                    </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Footer -->
+            <div class="p-4 border-t border-gray-100 bg-gray-50">
+                <div class="flex items-center justify-between">
+                    <button onclick="sendTemplate('{{ template.id }}')" class="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
+                        <i class="fas fa-paper-plane"></i> Enviar ahora
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="previewTemplate('{{ loop.index0 }}')" class="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1" title="Vista previa">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="if(confirm('Eliminar esta plantilla?')) { fetch('/dashboard/api/templates/{{ template.id }}', {method: 'DELETE'}).then(r=>location.reload()) }" class="text-sm text-gray-400 hover:text-red-600 flex items-center gap-1" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-full bg-white rounded-xl p-16 text-center shadow-sm border border-gray-100">
+            <i class="fas fa-comment-dots text-5xl text-gray-300 mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No hay plantillas</h3>
+            <p class="text-gray-500 mb-6">Crea tu primera plantilla para comunicarte proactivamente con tus clientes</p>
+            <button onclick="openModal('templateModal')" class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition inline-flex items-center gap-2">
+                <i class="fas fa-plus"></i> Crear Plantilla
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Modal: Nueva plantilla -->
+<div id="templateModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-gray-900">Crear Plantilla</h3>
+            <button onclick="closeModal('templateModal')" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form method="POST" action="/dashboard/templates/create" class="space-y-4" id="templateForm">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                    <input type="text" name="name" required placeholder="Ej: recordatorio_pago" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <p class="text-xs text-gray-400 mt-1">Solo letras, números y guiones bajos</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                    <select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="utility">Utility (Confirmación/Recordatorio)</option>
+                        <option value="marketing">Marketing (Promoción)</option>
+                        <option value="authentication">Authentication (Verificación)</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Encabezado (opcional)</label>
+                <input type="text" name="header_text" placeholder="Ej: ¡Hola {{1}}!" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Mensaje principal</label>
+                <textarea name="body_text" required rows="4" placeholder="Ej: Hola {{1}}, este es un recordatorio de tu pago pendiente de S/ {{2}}. Por favor realiza el pago a la brevedad. ¡Gracias!" class="w-full px-3 py-2 border border-gray-300 rounded-lg"></textarea>
+                <div class="flex flex-wrap gap-2 mt-2">
+                    <span class="text-xs text-gray-500">Variables disponibles:</span>
+                    <button type="button" onclick="insertVariable('body_text', '{{1}}')" class="text-xs px-2 py-1 bg-gray-100 rounded font-mono hover:bg-gray-200">{{1}} Nombre</button>
+                    <button type="button" onclick="insertVariable('body_text', '{{2}}')" class="text-xs px-2 py-1 bg-gray-100 rounded font-mono hover:bg-gray-200">{{2}} Monto</button>
+                    <button type="button" onclick="insertVariable('body_text', '{{3}}')" class="text-xs px-2 py-1 bg-gray-100 rounded font-mono hover:bg-gray-200">{{3}} Días</button>
+                    <button type="button" onclick="insertVariable('body_text', '{{4}}')" class="text-xs px-2 py-1 bg-gray-100 rounded font-mono hover:bg-gray-200">{{4}} Producto</button>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Pie de página (opcional)</label>
+                <input type="text" name="footer_text" placeholder="Ej: Gracias por su preferencia" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Botones (opcional)</label>
+                <div id="buttonsContainer" class="space-y-2">
+                    <div class="flex items-center gap-2 button-row">
+                        <select class="w-40 px-3 py-2 border border-gray-300 rounded-lg button-type">
+                            <option value="QUICK_REPLY">Respuesta rápida</option>
+                            <option value="PHONE_NUMBER">Teléfono</option>
+                            <option value="URL">Enlace</option>
+                        </select>
+                        <input type="text" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg button-text" placeholder="Texto del botón">
+                        <button type="button" onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-600 p-2">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" onclick="addButtonRow()" class="mt-2 text-sm text-primary-600 hover:text-primary-700 font-medium">
+                    <i class="fas fa-plus"></i> Agregar botón
+                </button>
+            </div>
+            <input type="hidden" name="buttons_json" id="buttonsJson" value="[]">
+            <div class="flex justify-end gap-3 pt-4">
+                <button type="button" onclick="closeModal('templateModal')" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancelar</button>
+                <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition">Crear Plantilla</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Preview modal -->
+<div id="previewModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-sm">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-900">Vista Previa</h3>
+            <button onclick="closeModal('previewModal')" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="previewContent" class="bg-gray-100 rounded-2xl p-4">
+            <!-- WhatsApp preview -->
+            <div class="bg-green-100 rounded-2xl p-4 mb-2">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs text-green-800 font-semibold">FacturaBot</span>
+                    <span class="text-xs text-green-700">✓✓</span>
+                </div>
+                <p id="previewBody" class="text-sm text-gray-700 whitespace-pre-line"></p>
+                <p id="previewFooter" class="text-xs text-gray-500 border-t border-green-200 mt-2 pt-2"></p>
+            </div>
+            <p class="text-[10px] text-center text-gray-400">Vista previa del mensaje en WhatsApp</p>
+        </div>
+    </div>
+</div>
+
+<script>
+const allTemplates = {{ templates | tojson }};
+
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
+
+function insertVariable(fieldId, variable) {
+    const field = document.getElementById(fieldId);
+    const start = field.selectionStart;
+    field.value = field.value.slice(0, start) + variable + field.value.slice(field.selectionEnd);
+    field.focus();
+}
+
+function addButtonRow() {
+    const container = document.getElementById('buttonsContainer');
+    const row = document.createElement('div');
+    row.className = 'flex items-center gap-2 button-row';
+    row.innerHTML = `
+        <select class="w-40 px-3 py-2 border border-gray-300 rounded-lg button-type">
+            <option value="QUICK_REPLY">Respuesta rápida</option>
+            <option value="PHONE_NUMBER">Teléfono</option>
+            <option value="URL">Enlace</option>
+        </select>
+        <input type="text" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg button-text" placeholder="Texto del botón">
+        <button type="button" onclick="this.parentElement.remove()" class="text-gray-400 hover:text-red-600 p-2"><i class="fas fa-times"></i></button>
+    `;
+    container.appendChild(row);
+}
+
+document.getElementById('templateForm')?.addEventListener('submit', function() {
+    const buttons = [];
+    document.querySelectorAll('.button-row').forEach(row => {
+        const type = row.querySelector('.button-type').value;
+        const text = row.querySelector('.button-text').value;
+        if (text.trim()) buttons.push({ type, text: text.trim() });
+    });
+    document.getElementById('buttonsJson').value = JSON.stringify(buttons);
+});
+
+function previewTemplate(idx) {
+    const t = allTemplates[idx];
+    if (!t) return;
+    document.getElementById('previewBody').textContent = t.body_text;
+    document.getElementById('previewFooter').textContent = t.footer_text || '';
+    openModal('previewModal');
+}
+
+function sendTemplate(templateId) {
+    const phone = prompt("Número de WhatsApp de destino (formato internacional sin +):");
+    if (phone && phone.trim()) {
+        fetch('/dashboard/api/templates/send', {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ template_id: templateId, to: phone.trim() })
+        }).then(r => r.json()).then(data => {
+            alert(data.message || (data.success ? "Plantilla enviada" : "Error al enviar"));
+        }).catch(() => alert("Error al enviar"));
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - FacturaBot{% endblock %}
+
+{% block extra_head %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sales Chart
+        fetch('/dashboard/api/sales-chart?days=30')
+            .then(r => r.json())
+            .then(data => {
+                new Chart(document.getElementById('salesChart'), {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Ventas (S/)',
+                            data: data.totals,
+                            borderColor: '#0ea5e9',
+                            backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { callback: v => 'S/ ' + v.toLocaleString() } }
+                        }
+                    }
+                });
+            });
+
+        // Top Products Chart
+        fetch('/dashboard/api/top-products?limit=5')
+            .then(r => r.json())
+            .then(data => {
+                new Chart(document.getElementById('topProductsChart'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.products.map(p => p.name),
+                        datasets: [{
+                            data: data.products.map(p => p.quantity),
+                            backgroundColor: ['#0ea5e9', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { padding: 15, font: { size: 11 } } } }
+                    }
+                });
+            });
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Dashboard</h2>
+            <p class="text-gray-500 mt-1">Resumen de tu negocio este mes</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="/dashboard/products/new" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition flex items-center gap-2">
+                <i class="fas fa-plus"></i> Nuevo Producto
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Facturas este mes</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-1">{{ total_invoices }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
+                    <i class="fas fa-file-invoice text-primary-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Ventas totales</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-1">S/ {{ "{:,.2f}".format(total_sales) }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                    <i class="fas fa-dollar-sign text-green-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Pendientes SUNAT</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-1 text-yellow-600">{{ pending_invoices }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
+                    <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Stock bajo (≤5)</p>
+                    <p class="text-3xl font-bold text-gray-900 mt-1 text-red-600">{{ low_stock }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Ventas últimos 30 días</h3>
+            <div class="h-72">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Top 5 productos vendidos</h3>
+            <div class="h-72 flex items-center justify-center">
+                <canvas id="topProductsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Recent Invoices -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">Últimas facturas</h3>
+                <a href="/dashboard/invoices" class="text-sm text-primary-600 hover:text-primary-700">Ver todas</a>
+            </div>
+            <div class="divide-y divide-gray-100">
+                {% for invoice in recent_invoices %}
+                <a href="/dashboard/invoices/{{ invoice.id }}" class="block p-4 hover:bg-gray-50 transition">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ invoice.series }}-{{ "%08d"|format(invoice.number) }}</p>
+                            <p class="text-sm text-gray-500">{{ invoice.customer_name or "Cliente varios" }} • {{ invoice.created_at.strftime("%d/%m/%Y %H:%M") }}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold text-gray-900">S/ {{ "{:,.2f}".format(invoice.total) }}</p>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                {% if invoice.sunat_status == 'accepted' %}bg-green-100 text-green-800
+                                {% elif invoice.sunat_status == 'rejected' %}bg-red-100 text-red-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {% if invoice.sunat_status == 'accepted' %}✓ Aceptada
+                                {% elif invoice.sunat_status == 'rejected' %}✗ Rechazada
+                                {% else %}⏳ Pendiente{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                {% else %}
+                <div class="p-8 text-center text-gray-500">
+                    <i class="fas fa-receipt text-3xl mb-2"></i>
+                    <p>No hay facturas aún</p>
+                    <a href="/dashboard/products/new" class="text-primary-600 hover:underline mt-2 inline-block">Registra tu primer producto</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Products -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">Productos recientes</h3>
+                <a href="/dashboard/products" class="text-sm text-primary-600 hover:text-primary-700">Ver todos</a>
+            </div>
+            <div class="divide-y divide-gray-100">
+                {% for product in recent_products %}
+                <a href="/dashboard/products/{{ product.id }}/edit" class="block p-4 hover:bg-gray-50 transition">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+                                <i class="fas fa-box text-gray-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900">{{ product.name }}</p>
+                                <p class="text-sm text-gray-500">Stock: {{ product.stock }} {{ product.unit }} • S/ {{ "{:,.2f}".format(product.price) }}</p>
+                            </div>
+                        </div>
+                        {% if product.stock <= 5 and product.stock > 0 %}
+                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Stock bajo</span>
+                        {% elif product.stock == 0 %}
+                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Agotado</span>
+                        {% else %}
+                        <span class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">OK</span>
+                        {% endif %}
+                    </div>
+                </a>
+                {% else %}
+                <div class="p-8 text-center text-gray-500">
+                    <i class="fas fa-boxes text-3xl mb-2"></i>
+                    <p>No hay productos registrados</p>
+                    <a href="/dashboard/products/new" class="text-primary-600 hover:underline mt-2 inline-block">Registrar primer producto</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

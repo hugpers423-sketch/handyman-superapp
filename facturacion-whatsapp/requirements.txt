@@ -1,0 +1,29 @@
+# Runtime base (compatible con Python 3.14; arranca sin tocar los extras ML)
+fastapi
+uvicorn
+python-multipart
+pydantic
+pydantic-settings
+sqlalchemy
+aiosqlite
+asyncpg
+redis
+httpx
+jinja2
+itsdangerous
+python-jose[cryptography]
+passlib[bcrypt]
+python-dotenv
+pillow
+openpyxl
+qrcode[pil]
+email-validator
+
+# Tests
+pytest
+pytest-asyncio
+
+# Opcional: reconocimiento por imagen (easyocr se importa de forma perezosa)
+# pyzbar
+
+# Extra ML (reconocimiento por foto + transcripción de voz) -> requirements-ml.txt

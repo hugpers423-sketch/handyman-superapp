@@ -1,0 +1,15 @@
+# Extras opcionales de ML (VOZ + FOTO): solo si vas a usar estas funciones.
+# Requieren Python con wheels disponibles (3.10-3.12) y bastante RAM/GPU.
+openai-whisper
+sentence-transformers
+faiss-cpu
+torch
+torchvision
+transformers
+numpy
+opencv-python-headless
+easyocr
+pyzbar
+gspread
+celery
+flower

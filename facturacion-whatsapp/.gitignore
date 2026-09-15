@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Entorno y datos locales
+.env
+*.db
+*.sqlite3
+facturacion.db*
+*.log
+uvicorn.*
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ML models descargados
+models/
+cache/

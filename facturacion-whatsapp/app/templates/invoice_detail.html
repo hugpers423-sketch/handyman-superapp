@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}{{ invoice.series }}-{{ "%08d"|format(invoice.number) }} - FacturaBot{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">{{ invoice.series }}-{{ "%08d"|format(invoice.number) }}</h2>
+            <p class="text-gray-500 mt-1">{{ invoice.document_type_name }} • {{ invoice.created_at.strftime("%d/%m/%Y %H:%M") }}</p>
+        </div>
+        <div class="flex gap-2">
+            {% if invoice.pdf_url %}
+            <a href="{{ invoice.pdf_url }}" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2">
+                <i class="fas fa-file-pdf"></i> PDF
+            </a>
+            {% endif %}
+            {% if invoice.xml_url %}
+            <a href="{{ invoice.xml_url }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+                <i class="fas fa-file-code"></i> XML
+            </a>
+            {% endif %}
+            <a href="/dashboard/invoices" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">Volver</a>
+            {% if invoice.document_type in ['01', '03'] and invoice.status != 'cancelled' and invoice.sunat_status == 'accepted' %}
+            <form action="/dashboard/invoices/{{ invoice.id }}/void" method="post"
+                  onsubmit="return confirm('Emitir nota de crédito para anular este comprobante?');">
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2">
+                    <i class="fas fa-undo"></i> Nota de Crédito
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Status Badge -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-sm font-medium text-gray-700">Estado SUNAT:</span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                    {% if invoice.sunat_status == 'accepted' %}bg-green-100 text-green-800
+                    {% elif invoice.sunat_status == 'rejected' %}bg-red-100 text-red-800
+                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                    {% if invoice.sunat_status == 'accepted' %}
+                    <i class="fas fa-check mr-1"></i>Aceptada
+                    {% elif invoice.sunat_status == 'rejected' %}
+                    <i class="fas fa-times mr-1"></i>Rechazada
+                    {% else %}
+                    <i class="fas fa-clock mr-1"></i>Pendiente
+                    {% endif %}
+                </span>
+            </div>
+            {% if invoice.sunat_cdr %}
+            <div class="flex items-center gap-2 text-sm text-gray-500">
+                <span>CDR:</span>
+                <code class="bg-gray-100 px-2 py-1 rounded">{{ invoice.sunat_cdr }}</code>
+            </div>
+            {% endif %}
+            {% if invoice.sunat_hash %}
+            <div class="flex items-center gap-2 text-sm text-gray-500">
+                <span>Hash:</span>
+                <code class="bg-gray-100 px-2 py-1 rounded text-xs">{{ invoice.sunat_hash[:30] }}...</code>
+            </div>
+            {% endif %}
+        </div>
+        {% if invoice.sunat_status == 'rejected' and invoice.sunat_response %}
+        <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p class="text-sm text-red-800"><strong>Error:</strong> {{ invoice.sunat_response.sunat_description or invoice.sunat_response.sunat_note or 'Error desconocido' }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Info Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Emisor -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="fas fa-building text-primary-600"></i> Emisor
+            </h3>
+            <dl class="space-y-3 text-sm">
+                <div class="flex justify-between"><dt class="text-gray-500">Razón social:</dt><dd class="font-medium">{{ invoice.user.business_name or invoice.user.name }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">RUC:</dt><dd class="font-medium">{{ invoice.user.nubefact_ruc or invoice.user.ruc }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Dirección:</dt><dd class="font-medium">{{ invoice.user.address }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Ubigeo:</dt><dd class="font-medium">{{ invoice.user.district }}, {{ invoice.user.province }}, {{ invoice.user.department }}</dd></div>
+            </dl>
+        </div>
+
+        <!-- Cliente -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="fas fa-user text-green-600"></i> Cliente
+            </h3>
+            <dl class="space-y-3 text-sm">
+                <div class="flex justify-between"><dt class="text-gray-500">Tipo doc:</dt><dd class="font-medium">{{ invoice.customer_type == '1' and 'DNI' or 'RUC' }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Número:</dt><dd class="font-medium">{{ invoice.customer_doc }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Nombre:</dt><dd class="font-medium">{{ invoice.customer_name or 'Cliente varios' }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Dirección:</dt><dd class="font-medium">{{ invoice.customer_address or '-' }}</dd></div>
+                {% if invoice.customer_email %}
+                <div class="flex justify-between"><dt class="text-gray-500">Email:</dt><dd class="font-medium">{{ invoice.customer_email }}</dd></div>
+                {% endif %}
+            </dl>
+        </div>
+
+        <!-- Totales -->
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 lg:col-span-2">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="fas fa-calculator text-yellow-600"></i> Totales
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-gray-50 rounded-lg p-4 text-center">
+                    <p class="text-sm text-gray-500">Subtotal</p>
+                    <p class="text-2xl font-bold text-gray-900">S/ {{ "{:,.2f}".format(invoice.subtotal) }}</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4 text-center">
+                    <p class="text-sm text-gray-500">IGV (18%)</p>
+                    <p class="text-2xl font-bold text-gray-900">S/ {{ "{:,.2f}".format(invoice.tax_amount) }}</p>
+                </div>
+                <div class="bg-primary-50 rounded-lg p-4 text-center">
+                    <p class="text-sm text-primary-700">Total</p>
+                    <p class="text-2xl font-bold text-primary-700">S/ {{ "{:,.2f}".format(invoice.total) }}</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4 text-center">
+                    <p class="text-sm text-gray-500">Moneda</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ invoice.currency }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Detalle de items</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Cant.</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Unidad</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">P. Unit.</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Desc.</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">IGV</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for item in items %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm text-gray-500">{{ loop.index }}</td>
+                        <td class="px-6 py-4">
+                            <p class="font-medium text-gray-900">{{ item.description }}</td>
+                        <td class="px-6 py-4 text-center text-sm text-gray-900">{{ item.quantity }}</td>
+                        <td class="px-6 py-4 text-center text-sm text-gray-500">{{ item.unit }}</td>
+                        <td class="px-6 py-4 text-right text-sm text-gray-900">S/ {{ "{:,.2f}".format(item.unit_price) }}</td>
+                        <td class="px-6 py-4 text-right text-sm text-gray-500">{{ item.discount }}%</td>
+                        <td class="px-6 py-4 text-right text-sm text-gray-500">{{ item.tax_type == '10' and '18%' or '0%' }}</td>
+                        <td class="px-6 py-4 text-right font-medium text-gray-900">S/ {{ "{:,.2f}".format(item.total) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="bg-gray-50 border-t border-gray-200">
+                    <tr>
+                        <td colspan="7" class="px-6 py-3 text-right font-semibold text-gray-900">Total</td>
+                        <td class="px-6 py-3 text-right font-bold text-lg text-gray-900">S/ {{ "{:,.2f}".format(invoice.total) }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- QR Code -->
+    {% if invoice.qr_code_url %}
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Código QR SUNAT</h3>
+        <img src="{{ invoice.qr_code_url }}" alt="QR SUNAT" class="mx-auto w-48 h-48">
+        <p class="text-sm text-gray-500 mt-2">Escanea para validar en SUNAT</p>
+    </div>
+    {% endif %}
+
+    <!-- Raw Response (debug) -->
+    {% if invoice.sunat_response %}
+    <details class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <summary class="cursor-pointer text-sm font-medium text-gray-700">Ver respuesta completa SUNAT (debug)</summary>
+        <pre class="mt-4 p-4 bg-gray-100 rounded-lg overflow-x-auto text-xs text-gray-700">{{ invoice.sunat_response | tojson(indent=2) }}</pre>
+    </details>
+    {% endif %}
+</div>
+{% endblock %}

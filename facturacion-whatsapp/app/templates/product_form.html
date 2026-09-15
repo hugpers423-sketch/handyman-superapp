@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}{% if product %}Editar{% else %}Nuevo{% endif %} Producto - FacturaBot{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">{% if product %}Editar{% else %}Nuevo{% endif %} Producto</h2>
+            <p class="text-gray-500 mt-1">{% if product %}Modifica la información del producto{% else %}Registra un nuevo producto en tu catálogo{% endif %}</p>
+        </div>
+        <a href="/dashboard/products" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">Cancelar</a>
+    </div>
+
+    <!-- Form -->
+    <form method="POST" action="{% if product %}/dashboard/products/{{ product.id }}/edit{% else %}/dashboard/products/new{% endif %}" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-6">
+        <!-- Basic Info -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="fas fa-info-circle text-primary-600"></i> Información Básica
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                    <input type="text" name="name" value="{{ product.name if product else '' }}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Ej: Polo algodón negro talla M">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">SKU</label>
+                    <input type="text" name="sku" value="{{ product.sku if product else '' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Código interno único">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Código de barras</label>
+                    <input type="text" name="barcode" value="{{ product.barcode if product else '' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="EAN13, UPC, etc.">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Unidad *</label>
+                    <select name="unit" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="UNIDAD" {% if (product and product.unit == 'UNIDAD') or not product %}selected{% endif %}>UNIDAD</option>
+                        <option value="KILOGRAMO" {% if product and product.unit == 'KILOGRAMO' %}selected{% endif %}>KILOGRAMO</option>
+                        <option value="METRO" {% if product and product.unit == 'METRO' %}selected{% endif %}>METRO</option>
+                        <option value="LITRO" {% if product and product.unit == 'LITRO' %}selected{% endif %}>LITRO</option>
+                        <option value="DOCENA" {% if product and product.unit == 'DOCENA' %}selected{% endif %}>DOCENA</option>
+                        <option value="CAJA" {% if product and product.unit == 'CAJA' %}selected{% endif %}>CAJA</option>
+                        <option value="PAR" {% if product and product.unit == 'PAR' %}selected{% endif %}>PAR</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            <textarea name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Detalles del producto, materiales, tallas, colores...">{{ product.description if product else '' }}</textarea>
+        </div>
+
+        <!-- Pricing & Stock -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="fas fa-dollar-sign text-green-600"></i> Precio y Stock
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Precio de venta (S/) *</label>
+                    <input type="number" step="0.01" min="0" name="price" value="{{ product.price if product else '' }}" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="45.00">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Stock inicial</label>
+                    <input type="number" min="0" name="stock" value="{{ product.stock if product else 0 }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de IGV *</label>
+                    <select name="tax_type" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="10" {% if (product and product.tax_type == '10') or not product %}selected{% endif %}>10 - Gravado (18%)</option>
+                        <option value="20" {% if product and product.tax_type == '20' %}selected{% endif %}>20 - Exonerado (0%)</option>
+                        <option value="30" {% if product and product.tax_type == '30' %}selected{% endif %}>30 - Inafecto (0%)</option>
+                    </select>
+                </div>
+            </div>
+            {% if product %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Tasa IGV (%)</label>
+                    <input type="number" step="0.01" min="0" max="100" name="tax_rate" value="{{ product.tax_rate }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="18.00">
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Classification -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="fas fa-tags text-purple-600"></i> Clasificación
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                    <input type="text" name="category" value="{{ product.category if product else '' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Ej: Polos, Pantalones, Accesorios">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
+                    <input type="text" name="brand" value="{{ product.brand if product else '' }}" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" placeholder="Ej: Marca propia, Genérico">
+                </div>
+            </div>
+        </div>
+
+        <!-- Status -->
+        {% if product %}
+        <div>
+            <label class="flex items-center gap-3">
+                <input type="checkbox" name="is_active" {% if product.is_active %}checked{% endif %} class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+                <span class="text-sm text-gray-700">Producto activo (visible en facturación)</span>
+            </label>
+        </div>
+        {% endif %}
+
+        <!-- Submit -->
+        <div class="flex justify-end gap-4 pt-4 border-t border-gray-200">
+            <a href="/dashboard/products" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">Cancelar</a>
+            <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition flex items-center gap-2">
+                <i class="fas fa-save"></i> {% if product %}Actualizar{% else %}Crear{% endif %}
+            </button>
+        </div>
+    </form>
+
+    <!-- Tips -->
+    <div class="mt-6 bg-primary-50 border border-primary-200 rounded-xl p-4">
+        <h4 class="font-medium text-primary-800 mb-2 flex items-center gap-2">
+            <i class="fas fa-lightbulb"></i> Tips para facturación rápida
+        </h4>
+        <ul class="text-sm text-primary-700 space-y-1">
+            <li>• Usa SKU únicos para identificar productos rápido por WhatsApp</li>
+            <li>• El código de barras permite reconocimiento automático por foto</li>
+            <li>• Stock se descuenta automáticamente al emitir facturas</li>
+            <li>• Categorías ayudan a organizar reportes de ventas</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,166 @@
+# Render.com Blueprint
+# 1. Conecta repo en dashboard.render.com → New → Blueprint
+# 2. Render detecta este archivo y crea todos los servicios
+
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: facturacion-db
+    plan: starter
+    region: oregon
+    postgresMajorVersion: 16
+    databaseName: facturacion
+    user: postgres
+
+  # Redis
+  - type: redis
+    name: facturacion-redis
+    plan: starter
+    region: oregon
+    maxmemoryPolicy: allkeys-lru
+
+  # Web Service (API)
+  - type: web
+    name: facturacion-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    region: oregon
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: facturacion-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: facturacion-redis
+          type: redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          name: facturacion-redis
+          type: redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          name: facturacion-redis
+          type: redis
+          property: connectionString
+      - key: WHATSAPP_PROVIDER
+        value: meta
+      - key: WHATSAPP_VERIFY_TOKEN
+        value: facturacion_bot_verify_2024
+      - key: WHISPER_MODEL
+        value: base
+      - key: WHISPER_DEVICE
+        value: cpu
+      - key: CLIP_MODEL
+        value: openai/clip-vit-base-patch32
+      - key: PRODUCT_SIMILARITY_THRESHOLD
+        value: "0.82"
+      - key: DEBUG
+        value: "false"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_ACCESS_TOKEN
+        sync: false
+      - key: WHATSAPP_APP_SECRET
+        sync: false
+      - key: NUBEFACT_TOKEN
+        sync: false
+      - key: NUBEFACT_RUC
+        sync: false
+      - key: NUBEFACT_USER
+        sync: false
+      - key: NUBEFACT_PASSWORD
+        sync: false
+
+  # Celery Worker (Background tasks)
+  - type: worker
+    name: facturacion-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerCommand: celery -A app.tasks worker --loglevel=info --concurrency=2
+    region: oregon
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: facturacion-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: facturacion-redis
+          type: redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          name: facturacion-redis
+          type: redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          name: facturacion-redis
+          type: redis
+          property: connectionString
+      - key: WHATSAPP_PROVIDER
+        value: meta
+      - key: WHISPER_MODEL
+        value: base
+      - key: WHISPER_DEVICE
+        value: cpu
+      - key: CLIP_MODEL
+        value: openai/clip-vit-base-patch32
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_ACCESS_TOKEN
+        sync: false
+      - key: WHATSAPP_APP_SECRET
+        sync: false
+      - key: NUBEFACT_TOKEN
+        sync: false
+      - key: NUBEFACT_RUC
+        sync: false
+      - key: NUBEFACT_USER
+        sync: false
+      - key: NUBEFACT_PASSWORD
+        sync: false
+
+  # Celery Beat (Scheduled tasks)
+  - type: worker
+    name: facturacion-beat
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerCommand: celery -A app.tasks beat --loglevel=info
+    region: oregon
+    plan: starter
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: facturacion-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: facturacion-redis
+          type: redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          name: facturacion-redis
+          type: redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          name: facturacion-redis
+          type: redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+
+# Nota: En Render, configura las variables "sync: false" en Settings → Environment
+# después del primer deploy. El webhook URL será: https://facturacion-api.onrender.com/api/v1/webhook

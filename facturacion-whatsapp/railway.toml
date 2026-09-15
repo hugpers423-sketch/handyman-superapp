@@ -1,0 +1,48 @@
+# Railway Deployment Config
+# Conecta tu repo en railway.app → New Project → Deploy from GitHub
+
+# Variables de entorno requeridas en Railway:
+# (Configurar en Settings → Variables)
+
+# Database (Railway provee PostgreSQL automáticamente)
+DATABASE_URL=postgresql+asyncpg://postgres:password@host:port/railway
+
+# Redis (Railway provee Redis automáticamente)
+REDIS_URL=redis://default:password@host:port
+
+# WhatsApp Meta Cloud API
+WHATSAPP_PROVIDER=meta
+WHATSAPP_PHONE_NUMBER_ID=${{WHATSAPP_PHONE_NUMBER_ID}}
+WHATSAPP_ACCESS_TOKEN=${{WHATSAPP_ACCESS_TOKEN}}
+WHATSAPP_VERIFY_TOKEN=facturacion_bot_verify_2024
+WHATSAPP_APP_SECRET=${{WHATSAPP_APP_SECRET}}
+
+# Nubefact
+NUBEFACT_API_URL=https://api.nubefact.com/api/v1
+NUBEFACT_TOKEN=${{NUBEFACT_TOKEN}}
+NUBEFACT_RUC=${{NUBEFACT_RUC}}
+NUBEFACT_USER=${{NUBEFACT_USER}}
+NUBEFACT_PASSWORD=${{NUBEFACT_PASSWORD}}
+NUBEFACT_SANDBOX=true
+
+# Whisper
+WHISPER_MODEL=base
+WHISPER_DEVICE=cpu
+
+# CLIP
+CLIP_MODEL=openai/clip-vit-base-patch32
+PRODUCT_SIMILARITY_THRESHOLD=0.82
+
+# Security
+SECRET_KEY=${{SECRET_KEY}}
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=43200
+
+# Celery
+CELERY_BROKER_URL=redis://default:password@host:port/1
+CELERY_RESULT_BACKEND=redis://default:password@host:port/2
+
+# App
+APP_NAME=Facturación WhatsApp Bot
+DEBUG=false
+API_V1_PREFIX=/api/v1

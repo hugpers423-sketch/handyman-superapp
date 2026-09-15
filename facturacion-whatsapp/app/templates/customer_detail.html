@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}{{ customer.name }} - FacturaBot{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">{{ customer.name }}</h2>
+            <p class="text-gray-500 mt-1">{{ customer.trade_name or '' }}</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="/dashboard/customers" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">Volver</a>
+        </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Documento</p>
+            <p class="text-xl font-bold text-gray-900 mt-1">
+                <span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                    {{ customer.doc_type == '1' and 'DNI' or 'RUC' }}
+                </span>
+                {{ customer.doc_number }}
+            </p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Teléfono</p>
+            <p class="text-xl font-bold text-gray-900 mt-1">{{ customer.phone or 'No registrado' }}</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">Email</p>
+            <p class="text-xl font-bold text-gray-900 mt-1">{{ customer.email or 'No registrado' }}</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <p class="text-sm text-gray-500">WhatsApp</p>
+            <p class="text-xl font-bold text-gray-900 mt-1">
+                {% if customer.whatsapp_id %}
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <i class="fab fa-whatsapp mr-1"></i>Conectado
+                </span>
+                {% else %}
+                <span class="text-gray-400">No vinculado</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Credit Section -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <i class="fas fa-credit-card text-green-600"></i> Control de Crédito
+        </h3>
+        
+        {% if customer.credit_limit > 0 %}
+        <div class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm text-gray-500">Límite de Crédito</p>
+                    <p class="text-2xl font-bold text-gray-900">S/ {{ "{:,.2f}".format(customer.credit_limit) }}</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm text-gray-500">Crédito Usado</p>
+                    <p class="text-2xl font-bold text-{% if customer.credit_used > customer.credit_limit %}red-600{% else %}gray-900{% endif %}">S/ {{ "{:,.2f}".format(customer.credit_used) }}</p>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm text-gray-500">Disponible</p>
+                    <p class="text-2xl font-bold text-{% if customer.is_blocked %}red-600{% elif customer.credit_limit - customer.credit_used < 0 %}yellow-600{% else %}green-600{% endif %}">
+                        S/ {{ "{:,.2f}".format(customer.credit_limit - customer.credit_used) }}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div>
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-500">Uso de crédito</span>
+                    <span class="font-medium {% if customer.is_blocked %}text-red-600{% elif customer.credit_used > customer.credit_limit %}text-yellow-600{% else %}text-green-600{% endif %}">
+                        {{ (customer.credit_used / customer.credit_limit * 100) if customer.credit_limit > 0 else 0 }}%
+                    </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="h-3 rounded-full {% if customer.is_blocked %}bg-red-500{% elif customer.credit_used > customer.credit_limit %}bg-yellow-500{% else %}bg-green-500{% endif %}" 
+                         style="width: {{ min(100, (customer.credit_used / customer.credit_limit * 100) if customer.credit_limit > 0 else 0) }}%"></div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 text-sm">
+                <span class="px-2 py-1 rounded-full text-xs font-medium 
+                    {% if customer.is_blocked %}bg-red-100 text-red-800
+                    {% elif customer.credit_used > customer.credit_limit %}bg-yellow-100 text-yellow-800
+                    {% else %}bg-green-100 text-green-800{% endif %}">
+                    {% if customer.is_blocked %}
+                    <i class="fas fa-lock mr-1"></i>BLOQUEADO
+                    {% elif customer.credit_used > customer.credit_limit %}
+                    <i class="fas fa-exclamation-triangle mr-1"></i>SOBRE LÍMITE
+                    {% else %}
+                    <i class="fas fa-check mr-1"></i>OK - {{ customer.credit_days }} días
+                    {% endif %}
+                </span>
+                
+                {% if customer.credit_used > 0 %}
+                <button onclick="promptPayment()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2">
+                    <i class="fas fa-money-bill-wave"></i> Registrar Pago
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <i class="fas fa-credit-card text-4xl text-gray-300 mb-4"></i>
+            <h4 class="text-lg font-medium text-gray-900 mb-2">Sin límite de crédito configurado</h4>
+            <p class="text-gray-500 mb-4">Este cliente paga al contado. Para habilitar crédito, edita su perfil.</p>
+            <button onclick="editCustomer()" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition">
+                Configurar Crédito
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
+            <p class="text-sm text-gray-500">Total Compras</p>
+            <p class="text-3xl font-bold text-gray-900 mt-1">S/ {{ "{:,.2f}".format(customer.total_purchases) }}</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
+            <p class="text-sm text-gray-500">N° Facturas</p>
+            <p class="text-3xl font-bold text-gray-900 mt-1">{{ customer.total_invoices }}</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
+            <p class="text-sm text-gray-500">Ticket Promedio</p>
+            <p class="text-3xl font-bold text-gray-900 mt-1">
+                S/ {{ "{:,.2f}".format(customer.total_purchases / customer.total_invoices if customer.total_invoices > 0 else 0) }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Recent Invoices -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">Historial de Compras</h3>
+        </div>
+        <div class="divide-y divide-gray-100">
+            {% for inv in customer.recent_invoices %}
+            <a href="/dashboard/invoices/{{ inv.id }}" class="block p-4 hover:bg-gray-50 transition">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium {% if inv.document_type == '01' %}bg-blue-100 text-blue-800{% else %}bg-green-100 text-green-800{% endif %}">
+                            {{ inv.document_type == '01' and 'Factura' or 'Boleta' }}
+                        </span>
+                        <span class="font-medium text-gray-900">{{ inv.series }}-{{ "%08d"|format(inv.number) }}</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold text-gray-900">S/ {{ "{:,.2f}".format(inv.total) }}</p>
+                        <p class="text-sm text-gray-500">{{ inv.date.strftime("%d/%m/%Y %H:%M") }}</p>
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                            {% if inv.status == 'accepted' %}bg-green-100 text-green-800
+                            {% elif inv.status == 'rejected' %}bg-red-100 text-red-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {% if inv.status == 'accepted' %}✓{% elif inv.status == 'rejected' %}✗{% else %}⏳{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </a>
+            {% else %}
+            <div class="p-8 text-center text-gray-500">
+                <i class="fas fa-receipt text-3xl mb-2"></i>
+                <p>No hay compras registradas</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
+        <div class="flex flex-wrap gap-4">
+            {% if customer.credit_used > 0 %}
+            <button onclick="promptPayment()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2">
+                <i class="fas fa-money-bill-wave"></i> Cobrar
+            </button>
+            <button onclick="sendReminder()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+                <i class="fas fa-bell"></i> Recordar Pago
+            </button>
+            {% endif %}
+            {% if customer.whatsapp_id %}
+            <button onclick="sendWhatsApp()" class="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition flex items-center gap-2">
+                <i class="fab fa-whatsapp"></i> Escribir por WhatsApp
+            </button>
+            {% endif %}
+            <a href="/dashboard/customers/{{ customer.id }}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition flex items-center gap-2">
+                <i class="fas fa-edit"></i> Editar Crédito
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function promptPayment() {
+    const amount = prompt("Monto a cobrar:");
+    if (amount && !isNaN(amount)) {
+        fetch("/dashboard/api/customers/{{ customer.id }}/payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ amount: amount, description: "Pago parcial" })
+        }).then(r => r.json()).then(data => {
+            if (data.success) {
+                alert("Pago registrado correctamente");
+                location.reload();
+            } else {
+                alert("Error al registrar pago");
+            }
+        });
+    }
+}
+
+function editCustomer() {
+    const limit = prompt("Nuevo límite de crédito (S/):", "{{ customer.credit_limit }}");
+    if (limit === null) return;
+    const days = prompt("Días de crédito:", "{{ customer.credit_days }}");
+    if (days === null) return;
+    const name = prompt("Nombre:", "{{ customer.name }}");
+    if (name === null || !name.trim()) return;
+
+    const body = new URLSearchParams({
+        name: name.trim(),
+        phone: "{{ customer.phone or '' }}",
+        email: "{{ customer.email or '' }}",
+        credit_limit: limit || 0,
+        credit_days: days || 0
+    });
+    fetch("/dashboard/api/customers/{{ customer.id }}/update", {
+        method: "POST",
+        body
+    }).then(r => r.json()).then(data => {
+        if (data.success) {
+            alert("Crédito actualizado");
+            location.reload();
+        } else {
+            alert("Error al actualizar");
+        }
+    });
+}
+
+function sendReminder() {
+    if (confirm("¿Enviar recordatorio de pago por WhatsApp?")) {
+        // TODO: Implementar endpoint
+        alert("Función en desarrollo");
+    }
+}
+
+function sendWhatsApp() {
+    // Abrir WhatsApp Web
+    window.open("https://wa.me/{{ customer.whatsapp_id }}", "_blank");
+}
+</script>
+{% endblock %}

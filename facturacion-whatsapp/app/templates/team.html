@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Equipo - FacturaBot{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">Equipo de Trabajo</h2>
+            <p class="text-gray-500 mt-1">Gestiona quién puede usar el sistema y con qué permisos</p>
+        </div>
+        {% if is_admin %}
+        <div class="flex gap-2">
+            <button onclick="openModal('inviteModal')" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition flex items-center gap-2">
+                <i class="fas fa-user-plus"></i> Invitar Miembro
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if request.query_params.get('invited') == '1' %}
+    <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center gap-2">
+        <i class="fas fa-check-circle"></i> Miembro invitado correctamente
+    </div>
+    {% endif %}
+    {% if request.query_params.get('error') %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2">
+        <i class="fas fa-exclamation-circle"></i> {{ request.query_params.get('error') }}
+    </div>
+    {% endif %}
+
+    <!-- Plan info -->
+    <div class="bg-primary-50 border border-primary-200 rounded-xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h3 class="font-semibold text-primary-900">Miembros del equipo: {{ members | length }}</h3>
+                <p class="text-sm text-primary-700 mt-1">Cada miembro tiene roles y permisos específicos en el sistema</p>
+            </div>
+            <div class="flex gap-2">
+                <span class="px-3 py-1 bg-primary-600 text-white rounded-full text-sm font-medium">
+                    <i class="fas fa-crown mr-1"></i> {{ members | selectattr('role', 'equalto', 'admin') | list | length }} Admin
+                </span>
+                <span class="px-3 py-1 bg-blue-600 text-white rounded-full text-sm font-medium">
+                    <i class="fas fa-store mr-1"></i> {{ members | selectattr('role', 'equalto', 'seller') | list | length }} Vendedores
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team members -->
+    <div class="space-y-4">
+        {% for member in members %}
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-{% if member.role == 'admin' %}purple-500{% elif member.role == 'seller' %}blue-500{% elif member.role == 'accountant' %}green-500{% else %}gray-500{% endif %} flex items-center justify-center text-white font-bold">
+                    {{ member.name[0] | upper }}
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 flex items-center gap-2">
+                        {{ member.name }}
+                        {% if member.role == 'admin' %}<i class="fas fa-crown text-yellow-500" title="Administrador"></i>{% endif %}
+                    </h3>
+                    <p class="text-sm text-gray-500">
+                        {% if member.email %}<i class="fas fa-envelope mr-1"></i>{{ member.email }}{% endif %}
+                        {% if member.whatsapp_id %}
+                        <span class="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fab fa-whatsapp mr-1"></i>{{ member.whatsapp_id }}
+                        </span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-full text-xs font-medium
+                    {% if member.role == 'admin' %}bg-purple-100 text-purple-800
+                    {% elif member.role == 'seller' %}bg-blue-100 text-blue-800
+                    {% elif member.role == 'accountant' %}bg-green-100 text-green-800
+                    {% else %}bg-gray-100 text-gray-700{% endif %}">
+                    {% if member.role == 'admin' %}Administrador{% elif member.role == 'seller' %}Vendedor{% elif member.role == 'accountant' %}Contador{% else %}Solo lectura{% endif %}
+                </span>
+                <span class="text-xs text-gray-400">
+                    {% if member.status == 'active' %}Activo{% elif member.status == 'invited' %}Invitado{% elif member.status == 'suspended' %}Suspendido{% else %}Removido{% endif %}
+                </span>
+                {% if is_admin and member.id != user.id %}
+                <div class="flex items-center gap-2 ml-2 border-l border-gray-200 pl-2">
+                    <form method="POST" action="/dashboard/team/{{ member.id }}/role" class="flex items-center gap-1">
+                        <select name="role" onchange="this.form.submit()" class="text-xs border border-gray-300 rounded-lg px-2 py-1">
+                            <option value="seller" {% if member.role == 'seller' %}selected{% endif %}>Vendedor</option>
+                            <option value="accountant" {% if member.role == 'accountant' %}selected{% endif %}>Contador</option>
+                            <option value="viewer" {% if member.role == 'viewer' %}selected{% endif %}>Solo lectura</option>
+                        </select>
+                    </form>
+                    <form method="POST" action="/dashboard/team/{{ member.id }}/remove" onsubmit="return confirm('¿Eliminar a {{ member.name }} del equipo?')">
+                        <button type="submit" class="text-gray-400 hover:text-red-600 transition p-2">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-white rounded-xl p-16 text-center shadow-sm border border-gray-100">
+            <i class="fas fa-users text-5xl text-gray-300 mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Trabajas solo por ahora</h3>
+            <p class="text-gray-500 mb-6">Invita a tu equipo para que todos puedan facturar desde sus WhatsApp</p>
+{% if is_admin %}
+            <button onclick="openModal('inviteModal')" class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition inline-flex items-center gap-2">
+                <i class="fas fa-user-plus"></i> Invitar Primer Miembro
+            </button>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Role permissions -->
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Roles y Permisos</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <h4 class="font-semibold text-purple-800 mb-2 flex items-center gap-2">
+                    <i class="fas fa-crown"></i> Administrador
+                </h4>
+                <ul class="text-sm text-purple-700 space-y-1">
+                    <li><i class="fas fa-check mr-1"></i>Todo: facturar, productos, gastos</li>
+                    <li><i class="fas fa-check mr-1"></i>Gestionar equipo y permisos</li>
+                    <li><i class="fas fa-check mr-1"></i>Exportar datos, reportes SUNAT</li>
+                    <li><i class="fas fa-check mr-1"></i>Configuración del negocio</li>
+                </ul>
+            </div>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 class="font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                    <i class="fas fa-store"></i> Vendedor
+                </h4>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li><i class="fas fa-check mr-1"></i>Facturar y boletear</li>
+                    <li><i class="fas fa-check mr-1"></i>Consultar stock de productos</li>
+                    <li><i class="fas fa-check mr-1"></i>Registrar ventas por WhatsApp</li>
+                    <li class="text-blue-400"><i class="fas fa-times mr-1"></i>No ve gastos ni reportes</li>
+                </ul>
+            </div>
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h4 class="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                    <i class="fas fa-calculator"></i> Contador
+                </h4>
+                <ul class="text-sm text-green-700 space-y-1">
+                    <li><i class="fas fa-check mr-1"></i>Ver facturas y boletas</li>
+                    <li><i class="fas fa-check mr-1"></i>Gastos y reportes SUNAT</li>
+                    <li><i class="fas fa-check mr-1"></i>Exportar reportes contables</li>
+                    <li class="text-green-400"><i class="fas fa-times mr-1"></i>No gestiona productos</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Invitar miembro -->
+<div id="inviteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 w-full max-w-lg">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-gray-900">Invitar Miembro</h3>
+            <button onclick="closeModal('inviteModal')" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form method="POST" action="/dashboard/team/invite" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                <input type="text" name="name" required placeholder="Nombre del miembro" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp ID (número del vendedor)</label>
+                <input type="text" name="whatsapp_id" required placeholder="Ej: 51998123456" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                <p class="text-xs text-gray-400 mt-1">Formato internacional sin +. Ej: 51998123456</p>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email (opcional)</label>
+                <input type="email" name="email" placeholder="correo@ejemplo.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                <select name="role" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <option value="seller">Vendedor</option>
+                    <option value="accountant">Contador</option>
+                    <option value="viewer">Solo lectura</option>
+                </select>
+            </div>
+            <div class="flex justify-end gap-3 pt-4">
+                <button type="button" onclick="closeModal('inviteModal')" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancelar</button>
+                <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition flex items-center gap-2">
+                    <i class="fas fa-paper-plane"></i> Invitar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
+</script>
+{% endblock %}
