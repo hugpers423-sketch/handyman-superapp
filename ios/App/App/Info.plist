@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CAPACITOR_DEBUG</key>
+  <string>$(CAPACITOR_DEBUG)</string>
+  <key>CFBundleDevelopmentRegion</key>
+  <string>en</string>
+  <key>CFBundleDisplayName</key>
+  <string>Handyman Super App</string>
+  <key>CFBundleExecutable</key>
+  <string>$(EXECUTABLE_NAME)</string>
+  <key>CFBundleIdentifier</key>
+  <string>com.handy.man</string>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+  <key>CFBundleName</key>
+  <string>$(PRODUCT_NAME)</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleShortVersionString</key>
+  <string>1.0</string>
+  <key>CFBundleVersion</key>
+  <string>1</string>
+  <key>LSRequiresIPhoneOS</key>
+  <true/>
+  <key>UIApplicationSceneManifest</key>
+  <dict>
+    <key>UIApplicationSupportsMultipleScenes</key>
+    <false/>
+    <key>UISceneConfigurations</key>
+    <dict>
+      <key>UIWindowSceneSessionRoleApplication</key>
+      <array>
+        <dict>
+            <key>UISceneConfigurationName</key>
+            <string>Default Configuration</string>
+            <key>UISceneDelegateClassName</key>
+            <string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+            <key>UISceneStoryboardFile</key>
+            <string>Main</string>
+        </dict>
+      </array>
+    </dict>
+  </dict>
+  <key>UILaunchStoryboardName</key>
+  <string>LaunchScreen</string>
+  <key>UIMainStoryboardFile</key>
+  <string>Main</string>
+  <key>UIRequiredDeviceCapabilities</key>
+  <array>
+    <string>armv7</string>
+  </array>
+  <key>UISupportedInterfaceOrientations</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+  </array>
+  <key>UISupportedInterfaceOrientations~ipad</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+    <string>UIInterfaceOrientationPortraitUpsideDown</string>
+  </array>
+  <key>UIViewControllerBasedStatusBarAppearance</key>
+  <true/>
+  
+  <!-- Permissions -->
+  <key>NSCameraUsageDescription</key>
+  <string>Necesitamos acceso a la cámara para escanear códigos QR de verificación y subir fotos de servicios</string>
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>Necesitamos acceso a la galería para seleccionar y subir fotos de servicios</string>
+  <key>NSPhotoLibraryAddUsageDescription</key>
+  <string>Necesitamos acceso para guardar fotos de servicios completados</string>
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>Necesitamos tu ubicación para encontrar profesionales cercanos y mostrar servicios en tu zona</string>
+  <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+  <string>Necesitamos tu ubicación en segundo plano para notificaciones de servicios cercanos</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Necesitamos acceso al micrófono para notas de voz en servicios</string>
+  <key>NSFaceIDUsageDescription</key>
+  <string>Usamos Face ID/Touch ID para autenticación segura en la app</string>
+  <key>NSUserTrackingUsageDescription</key>
+  <string>Usamos datos de uso para mejorar la experiencia y personalizar recomendaciones</string>
+  
+  <!-- Network -->
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <false/>
+    <key>NSExceptionDomains</key>
+    <dict>
+      <key>handy.man</key>
+      <dict>
+        <key>NSIncludesSubdomains</key>
+        <true/>
+        <key>NSExceptionAllowsInsecureHTTPLoads</key>
+        <false/>
+        <key>NSExceptionRequiresForwardSecrecy</key>
+        <true/>
+        <key>NSExceptionMinimumTLSVersion</key>
+        <string>TLSv1.2</string>
+      </dict>
+      <key>api.handy.man</key>
+      <dict>
+        <key>NSIncludesSubdomains</key>
+        <true/>
+        <key>NSExceptionAllowsInsecureHTTPLoads</key>
+        <false/>
+        <key>NSExceptionRequiresForwardSecrecy</key>
+        <true/>
+        <key>NSExceptionMinimumTLSVersion</key>
+        <string>TLSv1.2</string>
+      </dict>
+    </dict>
+  </dict>
+  
+  <!-- Deep Links -->
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>Handyman Deep Link</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>handyman</string>
+      </array>
+    </dict>
+  </array>
+  
+  <!-- Associated Domains -->
+  <key>com.apple.developer.associated-domains</key>
+  <array>
+    <string>applinks:handy.man</string>
+    <string>applinks:api.handy.man</string>
+  </array>
+  
+  <!-- Background Modes -->
+  <key>UIBackgroundModes</key>
+  <array>
+    <string>remote-notification</string>
+    <string>location</string>
+    <string>fetch</string>
+  </array>
+  
+  <!-- Push Notifications -->
+  <key>FirebaseMessagingAutoInitEnabled</key>
+  <false/>
+  
+  <!-- App Groups (if needed for extensions) -->
+  <key>com.apple.security.application-groups</key>
+  <array>
+    <string>group.com.handy.man</string>
+  </array>
+</dict>
+</plist>

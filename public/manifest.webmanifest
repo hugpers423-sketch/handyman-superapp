@@ -1,0 +1,36 @@
+{
+  "name": "Handyman Super App",
+  "short_name": "Handyman",
+  "description": "Conecta con profesionales verificados para tu hogar, negocio o empresa",
+  "theme_color": "#09251f",
+  "background_color": "#f7f5ef",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Solicitar servicio",
+      "short_name": "Solicitar",
+      "description": "Crear una nueva solicitud de servicio",
+      "url": "/?page=cliente#request",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "Panel Pro",
+      "short_name": "Pro",
+      "description": "Ver solicitudes asignadas",
+      "url": "/?page=pro",
+      "icons": [{ "src": "/favicon.svg", "sizes": "96x96" }]
+    }
+  ]
+}

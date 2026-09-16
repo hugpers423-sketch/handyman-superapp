@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Handyman Super App</string>
+    <string name="title_activity_main">Handyman Super App</string>
+    <string name="package_name">com.handy.man</string>
+    <string name="custom_url_scheme">com.handy.man</string>
+</resources>

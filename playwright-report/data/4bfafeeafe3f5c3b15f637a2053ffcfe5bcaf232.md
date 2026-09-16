@@ -1,0 +1,797 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: auth.spec.ts >> Authentication Flow >> should register a new client user
+- Location: tests\e2e\auth.spec.ts:8:3
+
+# Error details
+
+```
+Test timeout of 30000ms exceeded.
+```
+
+```
+Tearing down "context" exceeded the test timeout of 30000ms.
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - link "Saltar al contenido principal" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - banner [ref=e5]:
+        - generic "Handyman Super App" [ref=e6]:
+          - generic [ref=e11]:
+            - text: HANDYMAN
+            - emphasis [ref=e12]: SUPER APP
+        - tablist "Cambiar vista" [ref=e13]:
+          - tab "Cliente" [selected] [ref=e14] [cursor=pointer]:
+            - generic [aria-hidden] [ref=e15]: 🏠
+          - tab "Pro" [ref=e17] [cursor=pointer]:
+            - generic [aria-hidden] [ref=e18]: 👷
+          - tab "Ops" [ref=e20] [cursor=pointer]:
+            - generic [aria-hidden] [ref=e21]: 📊
+          - tab "Staff" [ref=e23] [cursor=pointer]:
+            - generic [aria-hidden] [ref=e24]: 👥
+          - tab "Admin" [ref=e26] [cursor=pointer]:
+            - generic [aria-hidden] [ref=e27]: 👑
+        - generic "Usuario actual" [ref=e29] [cursor=pointer]: VR
+      - main [ref=e32]:
+        - region [ref=e33]:
+          - region [ref=e34]:
+            - generic [ref=e35]:
+              - generic [ref=e36]:
+                - generic [ref=e37]: Lima · servicio disponible ahora
+                - heading "Cualquier problema. Una sola app." [level=1] [ref=e38]: Cualquier problema.Una sola app.
+                - paragraph [ref=e39]: Conecta en minutos con profesionales verificados para tu hogar, negocio o empresa. Seguimiento en vivo y garantía incluida.
+                - button "Solicitar servicio ahora →" [ref=e40] [cursor=pointer]
+              - generic [ref=e41]:
+                - generic [ref=e42]: H
+                - generic [ref=e46]:
+                  - generic [ref=e47]: JM
+                  - generic [ref=e49]:
+                    - generic [ref=e50]: Jorge Mendoza
+                    - text: Electricista · llega en 18 min
+            - region [ref=e52]:
+              - generic [ref=e53]:
+                - generic [ref=e54]: Servicios disponibles
+                - heading "¿Qué necesitas hoy?" [level=2] [ref=e55]
+              - list "Servicios disponibles" [ref=e56]:
+                - listitem [ref=e57] [cursor=pointer]:
+                  - generic [ref=e58]: 🚰
+                  - generic [ref=e59]:
+                    - generic [ref=e60]: Gasfitería
+                    - generic [ref=e61]: Fugas, tuberías y griferías
+                  - generic [aria-hidden] [ref=e62]: →
+                - listitem [ref=e63] [cursor=pointer]:
+                  - generic [ref=e64]: ⚡
+                  - generic [ref=e65]:
+                    - generic [ref=e66]: Electricidad
+                    - generic [ref=e67]: Instalación y emergencias
+                  - generic [aria-hidden] [ref=e68]: →
+                - listitem [ref=e69] [cursor=pointer]:
+                  - generic [ref=e70]: ❄️
+                  - generic [ref=e71]:
+                    - generic [ref=e72]: Refrigeración
+                    - generic [ref=e73]: AC y electrodomésticos
+                  - generic [aria-hidden] [ref=e74]: →
+                - listitem [ref=e75] [cursor=pointer]:
+                  - generic [ref=e76]: 🛠️
+                  - generic [ref=e77]:
+                    - generic [ref=e78]: Hogar y obra
+                    - generic [ref=e79]: Pintura, soldadura y más
+                  - generic [aria-hidden] [ref=e80]: →
+                - listitem [ref=e81] [cursor=pointer]:
+                  - generic [ref=e82]: ✨
+                  - generic [ref=e83]:
+                    - generic [ref=e84]: Limpieza
+                    - generic [ref=e85]: Hogar, oficina y postobra
+                  - generic [aria-hidden] [ref=e86]: →
+                - listitem [ref=e87] [cursor=pointer]:
+                  - generic [ref=e88]: 🛡️
+                  - generic [ref=e89]:
+                    - generic [ref=e90]: Seguridad
+                    - generic [ref=e91]: Cámaras, cerrajería y valores
+                  - generic [aria-hidden] [ref=e92]: →
+                - listitem [ref=e93] [cursor=pointer]:
+                  - generic [ref=e94]: 💻
+                  - generic [ref=e95]:
+                    - generic [ref=e96]: Tecnología
+                    - generic [ref=e97]: PC, redes y soporte técnico
+                  - generic [aria-hidden] [ref=e98]: →
+                - listitem [ref=e99] [cursor=pointer]:
+                  - generic [ref=e100]: 🌿
+                  - generic [ref=e101]:
+                    - generic [ref=e102]: Jardinería
+                    - generic [ref=e103]: Diseño y mantenimiento
+                  - generic [aria-hidden] [ref=e104]: →
+            - region [ref=e105]:
+              - article [ref=e106]:
+                - generic [ref=e107]:
+                  - heading "Profesionales cerca de ti" [level=3] [ref=e108]
+                  - generic [ref=e109]: 12 DISPONIBLES AHORA
+                - list [ref=e110]:
+                  - listitem [ref=e111]:
+                    - generic [ref=e112]:
+                      - generic [ref=e113]: JM
+                      - generic [ref=e115]:
+                        - heading "Jorge Mendoza" [level=4] [ref=e116]
+                        - generic [ref=e117]: ✓ Verificado
+                    - generic [ref=e118]:
+                      - generic [aria-hidden] [ref=e119]: ★
+                      - generic [ref=e120]: "4.9"
+                      - generic [ref=e121]: (2.4 km)
+                      - generic "Disponible"
+                    - generic [ref=e122]:
+                      - generic [ref=e123]: 🛠 Electricista
+                      - generic [ref=e124]: 💰 S/ 85–120
+                      - generic [ref=e125]: 📍 Miraflores
+                    - button "Ver perfil" [ref=e126] [cursor=pointer]
+                  - listitem [ref=e127]:
+                    - generic [ref=e128]:
+                      - generic [ref=e129]: RA
+                      - generic [ref=e131]:
+                        - heading "Rosa Alarcón" [level=4] [ref=e132]
+                        - generic [ref=e133]: ✓ Verificado
+                    - generic [ref=e134]:
+                      - generic [aria-hidden] [ref=e135]: ★
+                      - generic [ref=e136]: "4.8"
+                      - generic [ref=e137]: (1.8 km)
+                      - generic "Disponible"
+                    - generic [ref=e138]:
+                      - generic [ref=e139]: 🛠 Gasfitero
+                      - generic [ref=e140]: 💰 S/ 70–100
+                      - generic [ref=e141]: 📍 San Isidro
+                    - button "Ver perfil" [ref=e142] [cursor=pointer]
+                  - listitem [ref=e143]:
+                    - generic [ref=e144]:
+                      - generic [ref=e145]: CM
+                      - generic [ref=e147]:
+                        - heading "Carlos Méndez" [level=4] [ref=e148]
+                        - generic [ref=e149]: ✓ Verificado
+                    - generic [ref=e150]:
+                      - generic [aria-hidden] [ref=e151]: ★
+                      - generic [ref=e152]: "4.7"
+                      - generic [ref=e153]: (3.2 km)
+                      - generic "Disponible"
+                    - generic [ref=e154]:
+                      - generic [ref=e155]: 🛠 Refrigeración
+                      - generic [ref=e156]: 💰 S/ 120–180
+                      - generic [ref=e157]: 📍 Surco
+                    - button "Ver perfil" [ref=e158] [cursor=pointer]
+                  - listitem [ref=e159]:
+                    - generic [ref=e160]:
+                      - generic [ref=e161]: DV
+                      - generic [ref=e163]:
+                        - heading "Daniela Vega" [level=4] [ref=e164]
+                        - generic [ref=e165]: ✓ Verificado
+                    - generic [ref=e166]:
+                      - generic [aria-hidden] [ref=e167]: ★
+                      - generic [ref=e168]: "4.9"
+                      - generic [ref=e169]: (2.1 km)
+                      - generic "Disponible"
+                    - generic [ref=e170]:
+                      - generic [ref=e171]: 🛠 Limpieza
+                      - generic [ref=e172]: 💰 S/ 60–90
+                      - generic [ref=e173]: 📍 Miraflores
+                    - button "Ver perfil" [ref=e174] [cursor=pointer]
+                  - listitem [ref=e175]:
+                    - generic [ref=e176]:
+                      - generic [ref=e177]: MT
+                      - generic [ref=e179]:
+                        - heading "Miguel Torres" [level=4] [ref=e180]
+                        - generic [ref=e181]: ✓ Verificado
+                    - generic [ref=e182]:
+                      - generic [aria-hidden] [ref=e183]: ★
+                      - generic [ref=e184]: "4.6"
+                      - generic [ref=e185]: (4.0 km)
+                      - generic "Disponible"
+                    - generic [ref=e186]:
+                      - generic [ref=e187]: 🛠 Seguridad
+                      - generic [ref=e188]: 💰 S/ 150–200
+                      - generic [ref=e189]: 📍 La Molina
+                    - button "Ver perfil" [ref=e190] [cursor=pointer]
+              - article [ref=e191]:
+                - generic [ref=e192]:
+                  - heading "Tu historial reciente" [level=3] [ref=e193]
+                  - generic [ref=e194]: 5 SERVICIOS ESTE MES
+                - list [ref=e195]:
+                  - listitem [ref=e196]:
+                    - generic [ref=e197]:
+                      - heading "Gasfitería" [level=4] [ref=e198]
+                      - paragraph [ref=e199]: Posible fuga de gas
+                    - generic [ref=e200]: Pendiente
+                  - listitem [ref=e202]:
+                    - generic [ref=e203]:
+                      - heading "Refrigeración" [level=4] [ref=e204]
+                      - paragraph [ref=e205]: Instalación AC
+                    - generic [ref=e206]: En ruta
+                  - listitem [ref=e208]:
+                    - generic [ref=e209]:
+                      - heading "Limpieza" [level=4] [ref=e210]
+                      - paragraph [ref=e211]: Limpieza de oficina
+                    - generic [ref=e212]: En servicio
+            - region "Servicio de emergencia" [ref=e214]:
+              - generic [aria-hidden] [ref=e215]: 🚨
+              - generic [ref=e216]:
+                - strong [ref=e217]: ¿Es una emergencia?
+                - paragraph [ref=e218]: Gas, electricidad, cerrajería o seguridad. Priorizamos tu solicitud y enviamos ayuda certificada.
+              - button "Pedir ayuda urgente →" [ref=e219] [cursor=pointer]
+            - region [ref=e220]:
+              - generic [ref=e221]:
+                - generic [ref=e222]: MÁS QUE UN SERVICIO
+                - heading "Una app que anticipa." [level=2] [ref=e223]
+              - generic [ref=e224]:
+                - article [ref=e225]:
+                  - generic [ref=e226]: ⌁
+                  - heading "Diagnóstico Visual" [level=3] [ref=e227]
+                  - paragraph [ref=e228]: Una foto o video ayuda a clasificar el oficio, urgencia y materiales.Probar ahora
+                - article [ref=e229]:
+                  - generic [ref=e230]: ✦
+                  - heading "Garantía Handyman" [level=3] [ref=e231]
+                  - paragraph [ref=e232]: Cada servicio registra evidencia antes/después y garantía según categoría.SERVICIOGARANTIZADO
+              - article [ref=e233]:
+                - generic [ref=e234]: ★
+                - heading "Handy Points" [level=3] [ref=e235]
+                - generic [ref=e236]: 1,240
+                - paragraph [ref=e237]: Canjéalos por descuentos, mantenimientos y prioridad de atención.Ver beneficios
+    - region [ref=e238]:
+      - generic [ref=e239]:
+        - generic [ref=e240]: SEGUIMIENTO EN TIEMPO REAL
+        - heading "Tu servicio siempre bajo control." [level=2] [ref=e241]
+        - generic [ref=e242]: DEMO ACTIVA
+      - list "Pasos del servicio" [ref=e243]:
+        - listitem [ref=e244]:
+          - generic [ref=e245]: ✓
+          - generic [ref=e246]: Solicitud
+        - listitem [ref=e247]:
+          - generic [ref=e248]: ✓
+          - generic [ref=e249]: Asignado
+        - listitem [ref=e250]:
+          - generic [ref=e251]: ◉
+          - generic [ref=e252]: En ruta
+        - listitem [ref=e253]:
+          - generic [ref=e254]: "4"
+          - generic [ref=e255]: En servicio
+        - listitem [ref=e256]:
+          - generic [ref=e257]: "5"
+          - generic [ref=e258]: Completado
+    - region [ref=e259]:
+      - generic [ref=e260]:
+        - generic [ref=e261]: SOLICITAR SERVICIO
+        - heading "Cuéntanos qué necesitas." [level=2] [ref=e262]
+      - generic [ref=e263]:
+        - generic [ref=e264]:
+          - generic [ref=e265]:
+            - text: Tipo de servicio
+            - generic [ref=e266]: "*"
+          - combobox "Tipo de servicio *" [ref=e268]:
+            - option "Selecciona un servicio" [selected]
+            - option "Gasfitería"
+            - option "Electricidad"
+            - option "Refrigeración"
+            - option "Hogar y obra"
+            - option "Limpieza"
+            - option "Seguridad"
+            - option "Tecnología"
+            - option "Jardinería"
+        - generic [ref=e269]:
+          - generic [ref=e270]:
+            - text: Describe el problema
+            - generic [ref=e271]: "*"
+          - textbox "Describe el problema *" [ref=e273]:
+            - /placeholder: "Ej: Fuga de agua en cocina, necesito revisión de tuberías..."
+        - generic [ref=e274]:
+          - button "Crear solicitud →" [ref=e275] [cursor=pointer]
+          - button "Cancelar" [ref=e276] [cursor=pointer]
+    - region [ref=e277]:
+      - generic [ref=e278]:
+        - generic [ref=e279]:
+          - generic [ref=e280]: PANEL DEL PROFESIONAL
+          - heading "Hola, Jorge." [level=2] [ref=e281]
+        - generic [ref=e282]: PERFIL 100% VERIFICADO
+      - region "Métricas del profesional" [ref=e283]:
+        - generic [ref=e284]: S/ 0.00 Ingresos este mes (neto)
+        - generic [ref=e286]: 4.9 ★ Valoración general
+        - generic [ref=e288]: 0 Servicios completados
+        - generic [ref=e290]: 92% Tasa de aceptación
+      - generic [ref=e292]:
+        - generic [ref=e293]:
+          - heading "Tu Wallet & Membresía" [level=3] [ref=e294]
+          - generic [ref=e295]: GRATIS (Early Adopter)
+        - generic [ref=e296]:
+          - generic [ref=e297]:
+            - generic [ref=e298]: S/ 0.00
+            - generic [ref=e299]: Saldo disponible
+          - generic [ref=e300]:
+            - generic [ref=e301]: S/ 0.00
+            - generic [ref=e302]: Total ganado histórico
+          - generic [ref=e303]:
+            - generic [ref=e304]: 0 meses
+            - generic [ref=e305]: Gratis restantes
+          - generic [ref=e306]:
+            - generic [ref=e307]: S/ 49.00
+            - generic [ref=e308]: "Próximo cobro: 1/10/2026"
+        - generic [ref=e309]:
+          - button "Recargar Wallet" [ref=e310] [cursor=pointer]
+          - button "Ver historial" [ref=e311] [cursor=pointer]
+      - tablist "Secciones del profesional" [ref=e312]:
+        - tab "📋 📋 Solicitudes" [selected] [ref=e313] [cursor=pointer]
+        - tab "🛡️ 🛡️ Mi Protección" [ref=e314] [cursor=pointer]
+        - tab "📊 📊 Mis Aportes" [ref=e315] [cursor=pointer]
+        - tab "📋 📋 Siniestros" [ref=e316] [cursor=pointer]
+      - 'tabpanel "Solicitudes para ti 3 NUEVAS AR Gasfitería: Posible fuga de gas Andrea Ruiz · Miraflores · — · — URGENTE · 11:30 Aceptar solicitud OBJETIVO DE SEPTIEMBRE S/ 0.00 Te faltan 17 servicios promedio para llegar a tu objetivo mensual. Optimizar agenda →" [ref=e317]':
+        - generic [ref=e318]:
+          - generic [ref=e319]:
+            - heading "Solicitudes para ti" [level=3] [ref=e320]
+            - text: 3 NUEVAS
+          - listitem [ref=e321]:
+            - generic [ref=e322]: AR
+            - generic [ref=e323]:
+              - 'heading "Gasfitería: Posible fuga de gas" [level=4] [ref=e324]'
+              - paragraph [ref=e325]: Andrea Ruiz · Miraflores · — · —
+            - generic [ref=e326]: URGENTE · 11:30
+            - button "Aceptar solicitud" [ref=e327] [cursor=pointer]: Aceptar
+        - complementary [ref=e328]:
+          - generic [ref=e329]: OBJETIVO DE SEPTIEMBRE
+          - heading "S/ 0.00" [level=3] [ref=e330]
+          - paragraph [ref=e331]: Te faltan 17 servicios promedio para llegar a tu objetivo mensual.
+          - button "Optimizar agenda →" [ref=e332] [cursor=pointer]
+      - generic [ref=e333]:
+        - generic [ref=e334]:
+          - heading "Tu agenda de hoy" [level=3] [ref=e335]
+          - text: 4 SERVICIOS PROGRAMADOS
+        - list
+      - generic [ref=e336]:
+        - generic [ref=e337]:
+          - heading "Calificaciones recientes" [level=3] [ref=e338]
+          - text: PROMEDIO 4.9 ★
+        - generic [ref=e339]:
+          - generic [ref=e340]:
+            - generic [ref=e341]:
+              - generic [ref=e342]: AR
+              - generic [ref=e343]: Andrea RuizHace 2 días
+            - generic [ref=e344]: ★★★★★
+            - paragraph [ref=e345]: "\"Jorge llegó puntual, diagnosticó rápido y solucionó el problema del tomacorriente en 30 min. Muy profesional.\""
+          - generic [ref=e346]:
+            - generic [ref=e347]:
+              - generic [ref=e348]: JL
+              - generic [ref=e349]: Javier LeónHace 5 días
+            - generic [ref=e350]: ★★★★★
+            - paragraph [ref=e351]: "\"Excelente servicio de instalación de AC. Limpio, ordenado y explicó todo el funcionamiento.\""
+    - region [ref=e352]:
+      - generic [ref=e353]:
+        - generic [ref=e354]:
+          - generic [ref=e355]: CENTRO DE OPERACIONES
+          - heading "La ciudad está en marcha." [level=2] [ref=e356]
+        - button "Descargar reporte" [ref=e357] [cursor=pointer]
+      - region "Métricas operacionales" [ref=e358]:
+        - generic [ref=e359]: 126 Servicios activos
+        - generic [ref=e361]: 24 min Tiempo de asignación
+        - generic [ref=e363]: 94.6% Satisfacción
+        - generic [ref=e365]: 18 Incidencias abiertas
+      - generic [ref=e367]:
+        - generic [ref=e368]:
+          - generic [ref=e369]:
+            - heading "Control de servicios" [level=3] [ref=e370]
+            - text: ACTUALIZADO AHORA
+          - table "Servicios activos" [ref=e371]:
+            - rowgroup [ref=e372]:
+              - row [ref=e373]:
+                - columnheader "Solicitud" [ref=e374]
+                - columnheader "Profesional" [ref=e375]
+                - columnheader "Estado" [ref=e376]
+                - columnheader "Acción" [ref=e377]
+            - rowgroup [ref=e378]:
+              - row [ref=e379]:
+                - 'cell "#HM-2841 Gasfitería: Posible fuga de gas" [ref=e380]'
+                - cell "Sin asignar" [ref=e381]
+                - cell "URGENTE" [ref=e382]
+                - cell [ref=e384]:
+                  - button "Asignar" [ref=e385] [cursor=pointer]
+              - row [ref=e386]:
+                - 'cell "#HM-2839 Refrigeración: Instalación AC" [ref=e387]'
+                - cell "Carlos Méndez" [ref=e388]
+                - cell "EN RUTA" [ref=e389]
+                - cell [ref=e391]:
+                  - button "Ver" [ref=e392] [cursor=pointer]
+              - row [ref=e393]:
+                - 'cell "#HM-2835 Limpieza: Limpieza de oficina" [ref=e394]'
+                - cell "Daniela Vega" [ref=e395]
+                - cell "EN EJECUCIÓN" [ref=e396]
+                - cell [ref=e398]:
+                  - button "Ver" [ref=e399] [cursor=pointer]
+          - alert [ref=e400]: "Atención requerida: #HM-2841 requiere un gasfitero certificado a menos de 5 km. Activar protocolo de seguridad antes de enviar al profesional."
+        - complementary [ref=e401]:
+          - generic [ref=e402]: HANDYMAN INTELLIGENCE
+          - heading "Decisiones más rápidas, mejores servicios." [level=3] [ref=e403]
+          - paragraph [ref=e404]: Motor preparado para priorizar urgencias, optimizar rutas y predecir demanda.
+          - generic [ref=e405]:
+            - generic [ref=e406]:
+              - text: Priorización inteligente
+              - paragraph [ref=e407]: Clasifica urgencia real vs. percibida y asigna recursos críticos primero.
+            - generic [ref=e408]:
+              - text: Routing dinámico
+              - paragraph [ref=e409]: Recalcula rutas en tiempo real según tráfico, disponibilidad y cercanía.
+            - generic [ref=e410]:
+              - text: Predicción de demanda
+              - paragraph [ref=e411]: Anticipa picos por zona, clima y estacionalidad para tener pros listos.
+          - button "Activar IA completa" [ref=e412] [cursor=pointer]
+      - generic [ref=e413]:
+        - generic [ref=e414]:
+          - heading "Mapa de calor de demanda (Simulado)" [level=3] [ref=e415]
+          - text: ÚLTIMAS 24H
+        - generic [ref=e416]:
+          - generic [ref=e417]:
+            - generic [ref=e419]: Alta (Centro, Miraflores)
+            - generic [ref=e421]: Media (San Isidro, Surco)
+            - generic [ref=e423]: Baja (Periferia)
+          - paragraph [ref=e424]: 12 profesionales disponibles en zona alta · 8 en zona media · 3 en zona baja
+          - button "Actualizar mapa" [ref=e425] [cursor=pointer]
+    - region [ref=e426]:
+      - region [ref=e427]:
+        - generic [ref=e428]: HANDYMAN BUSINESS
+        - heading "Una sola plataforma para todas tus sedes." [level=2] [ref=e429]: Una sola plataformapara todas tus sedes.
+        - paragraph [ref=e430]: Coordina mantenimiento, emergencias, presupuesto y evidencias de servicio para oficinas, edificios, restaurantes y comercios.
+        - button "Crear cuenta empresarial →" [ref=e431] [cursor=pointer]
+      - region "Métricas empresariales" [ref=e432]:
+        - generic [ref=e433]: 08 Sedes conectadas
+        - generic [ref=e434]: 32 Servicios este mes
+        - generic [ref=e435]: S/ 8,420 Ahorro estimado
+        - generic [ref=e436]: 97% SLA cumplido
+      - generic [ref=e438]:
+        - generic [ref=e439]: PLANES PARA EMPRESAS
+        - heading "Escala sin perder control." [level=2] [ref=e440]
+      - list "Planes empresariales" [ref=e441]:
+        - listitem [ref=e442]:
+          - generic [ref=e443]: BASE
+          - generic [ref=e444]: Control esencial
+          - list [ref=e445]:
+            - listitem [ref=e446]: Una sede
+            - listitem [ref=e447]: Historial de servicios
+            - listitem [ref=e448]: Facturación mensual
+            - listitem [ref=e449]: Soporte por email
+          - button "Elegir Base" [ref=e450] [cursor=pointer]
+        - listitem [ref=e451]:
+          - generic [ref=e452]: RECOMENDADO
+          - generic [ref=e453]: Business
+          - list [ref=e454]:
+            - listitem [ref=e455]: Hasta 10 sedes
+            - listitem [ref=e456]: Soporte prioritario 24/7
+            - listitem [ref=e457]: Mantenimientos programados
+            - listitem [ref=e458]: Aprobaciones por equipo
+            - listitem [ref=e459]: Reportes avanzados
+            - listitem [ref=e460]: API de integración
+          - button "Elegir Business" [ref=e461] [cursor=pointer]
+        - listitem [ref=e462]:
+          - generic [ref=e463]: CORPORATE
+          - generic [ref=e464]: Operación crítica
+          - list [ref=e465]:
+            - listitem [ref=e466]: Sedes ilimitadas
+            - listitem [ref=e467]: Gestor dedicado
+            - listitem [ref=e468]: Protocolos de emergencia
+            - listitem [ref=e469]: Integración y reportes
+            - listitem [ref=e470]: SLA garantizado 99.9%
+            - listitem [ref=e471]: SSO y auditoría completa
+          - button "Hablar con ventas" [ref=e472] [cursor=pointer]
+      - generic [ref=e473]:
+        - generic [ref=e474]:
+          - heading "Mantenimientos programados" [level=3] [ref=e475]
+          - text: PRÓXIMOS 30 DÍAS
+        - generic [ref=e476]:
+          - article [ref=e477]:
+            - generic [ref=e478]: PREVENTIVO
+            - heading "Revisión AC Central" [level=3] [ref=e479]
+            - generic [ref=e480]:
+              - generic [ref=e481]:
+                - generic [ref=e482]: Sede Principal - Piso 5
+                - generic [ref=e483]: "Cada 3 meses · Próximo: 15 Sep"
+              - generic [ref=e484]: Programado
+            - generic [ref=e485]:
+              - generic [ref=e486]:
+                - generic [ref=e487]: Sede Surco - Oficinas
+                - generic [ref=e488]: "Cada 6 meses · Próximo: 28 Sep"
+              - generic [ref=e489]: Programado
+          - article [ref=e490]:
+            - generic [ref=e491]: INSPECCIÓN
+            - heading "Sistema contra incendios" [level=3] [ref=e492]
+            - generic [ref=e493]:
+              - generic [ref=e494]:
+                - generic [ref=e495]: Todas las sedes
+                - generic [ref=e496]: "Anual · Próximo: 05 Oct"
+              - generic [ref=e497]: Próximo
+          - article [ref=e498]:
+            - generic [ref=e499]: LIMPIEZA
+            - heading "Limpieza profunda post-obra" [level=3] [ref=e500]
+            - generic [ref=e501]:
+              - generic [ref=e502]:
+                - generic [ref=e503]: Sede Nueva - La Molina
+                - generic [ref=e504]: "Único · Programado: 22 Sep"
+              - generic [ref=e505]: Confirmado
+      - generic [ref=e506]:
+        - generic [ref=e507]:
+          - heading "Facturación consolidada" [level=3] [ref=e508]
+          - text: SEPTIEMBRE 2026
+        - generic [ref=e509]:
+          - generic [ref=e510]:
+            - generic [ref=e511]: S/ 12,450
+            - generic [ref=e512]: Total facturado
+          - generic [ref=e513]:
+            - generic [ref=e514]: S/ 3,200
+            - generic [ref=e515]: Pendiente pago
+          - generic [ref=e516]:
+            - generic [ref=e517]: S/ 8,420
+            - generic [ref=e518]: Ahorro vs. proveedores
+        - generic [ref=e519]:
+          - button "Descargar PDF" [ref=e520] [cursor=pointer]
+          - button "Enviar a contabilidad" [ref=e521] [cursor=pointer]
+          - button "Exportar Excel" [ref=e522] [cursor=pointer]
+      - generic [ref=e523]:
+        - generic [ref=e524]:
+          - heading "Equipo y aprobaciones" [level=3] [ref=e525]
+          - text: 12 COLABORADORES
+        - generic [ref=e526]:
+          - generic [ref=e527]:
+            - generic [ref=e528]:
+              - generic [ref=e529]: MR
+              - generic [ref=e530]: María RojasAdmin
+            - generic [ref=e531]: "Gestiona: Sede Principal, Sede Surco"
+          - generic [ref=e532]:
+            - generic [ref=e533]:
+              - generic [ref=e534]: CT
+              - generic [ref=e535]: Carlos TorresSupervisor
+            - generic [ref=e536]: "Gestiona: Sede La Molina, Sede Callao"
+          - generic [ref=e537]:
+            - generic [ref=e538]:
+              - generic [ref=e539]: JP
+              - generic [ref=e540]: Juan PérezSolicitante
+            - generic [ref=e541]: Sede Principal - Mantenimiento
+        - button "+ Añadir colaborador" [ref=e542] [cursor=pointer]
+    - region [ref=e543]:
+      - region [ref=e545]:
+        - generic [ref=e546]:
+          - generic [ref=e547]:
+            - generic [ref=e548]: PANEL STAFF
+            - heading "Gestión de Pagos, QR y Membresías" [level=2] [ref=e549]
+          - generic [ref=e550]:
+            - button "+ Config QR" [ref=e551] [cursor=pointer]
+            - button "💰 Cobrar membresías" [ref=e552] [cursor=pointer]
+        - region "Métricas de pagos" [ref=e553]:
+          - generic [ref=e554]: S/ 0.00 Comisiones transacciones (15%)
+          - generic [ref=e556]: S/ 0.00 Revenue plataforma (3%)
+          - generic [ref=e558]: S/ 0.00 Saldo total wallets
+          - generic [ref=e560]: 49.00 Fee mensual configurado
+        - region "Estado de membresías" [ref=e562]:
+          - generic [ref=e563]: 3 Gratis (early adopters)
+          - generic [ref=e565]: 0 Activos pagando
+          - generic [ref=e567]: 0 Período gracia
+          - generic [ref=e569]: 0 Suspendidos
+        - generic [ref=e571]:
+          - generic [ref=e572]:
+            - heading "Configuración de Membresía" [level=3] [ref=e574]
+            - generic [ref=e575]:
+              - generic [ref=e576]:
+                - generic [ref=e577]:
+                  - generic [ref=e578]: Meses gratis early adopters
+                  - spinbutton [ref=e579]: "2"
+                - generic [ref=e580]:
+                  - generic [ref=e581]: Fecha corte early adopters
+                  - textbox [ref=e582]: 2026-07-14
+                - generic [ref=e583]:
+                  - generic [ref=e584]: Fee mensual (S/)
+                  - spinbutton [ref=e585]: "49"
+                - generic [ref=e586]:
+                  - generic [ref=e587]: Días período gracia
+                  - spinbutton [ref=e588]: "7"
+                - generic [ref=e590]:
+                  - checkbox "Membresía activa" [checked] [ref=e591]
+                  - text: Membresía activa
+              - generic [ref=e592]: "Actualizado: 14/9/2026, 9:09:45 p. m. por admin"
+          - generic [ref=e593]:
+            - heading "Configuraciones de Pago (QR Yape/Plin)" [level=3] [ref=e595]
+            - generic [ref=e596]:
+              - article [ref=e597]:
+                - generic [ref=e598]:
+                  - generic [ref=e599]: YAPE
+                  - generic [ref=e600]:
+                    - generic [ref=e601]: ACTIVO
+                    - generic [ref=e602]: PREDETERMINADO
+                - generic [ref=e603]:
+                  - generic [ref=e604]: Sin QR generado
+                  - generic [ref=e606]:
+                    - generic [ref=e607]:
+                      - generic [ref=e608]: Nombre del negocio
+                      - textbox [ref=e609]: HANDYMAN PERÚ
+                    - generic [ref=e610]:
+                      - generic [ref=e611]: Teléfono (Yape/Plin)
+                      - textbox "999888777" [ref=e612]
+                    - generic [ref=e613]:
+                      - generic [ref=e614]: Comisión transacción (%)
+                      - spinbutton [ref=e615]: "15"
+                  - generic [ref=e616]:
+                    - button "🔄 Regenerar QR" [ref=e617] [cursor=pointer]
+                    - button "Desactivar" [ref=e618] [cursor=pointer]
+                  - generic [ref=e619]: "Actualizado: 14/9/2026, 9:09:45 p. m. por admin"
+              - article [ref=e620]:
+                - generic [ref=e621]:
+                  - generic [ref=e622]: PLIN
+                  - generic [ref=e623]: ACTIVO
+                - generic [ref=e625]:
+                  - generic [ref=e626]: Sin QR generado
+                  - generic [ref=e628]:
+                    - generic [ref=e629]:
+                      - generic [ref=e630]: Nombre del negocio
+                      - textbox [ref=e631]: HANDYMAN PERÚ
+                    - generic [ref=e632]:
+                      - generic [ref=e633]: Teléfono (Yape/Plin)
+                      - textbox "999888777" [ref=e634]
+                    - generic [ref=e635]:
+                      - generic [ref=e636]: Comisión transacción (%)
+                      - spinbutton [ref=e637]: "15"
+                  - generic [ref=e638]:
+                    - button "🔄 Regenerar QR" [ref=e639] [cursor=pointer]
+                    - button "Desactivar" [ref=e640] [cursor=pointer]
+                    - button "⭐ Predeterminado" [ref=e641] [cursor=pointer]
+                  - generic [ref=e642]: "Actualizado: 14/9/2026, 9:09:45 p. m. por admin"
+        - generic [ref=e643]:
+          - generic [ref=e644]:
+            - heading "Wallets de Profesionales" [level=3] [ref=e646]
+            - table [ref=e648]:
+              - rowgroup [ref=e649]:
+                - row [ref=e650]:
+                  - columnheader "Profesional" [ref=e651]
+                  - columnheader "Saldo" [ref=e652]
+                  - columnheader "Total ganado" [ref=e653]
+                  - columnheader "Estado membresía" [ref=e654]
+                  - columnheader "Meses gratis" [ref=e655]
+                  - columnheader "Próximo cobro" [ref=e656]
+                  - columnheader "Acciones" [ref=e657]
+              - rowgroup [ref=e658]:
+                - row [ref=e659]:
+                  - cell "JM Jorge Mendoza" [ref=e660]:
+                    - generic [ref=e661]:
+                      - generic [ref=e662]: JM
+                      - generic [ref=e663]: Jorge Mendoza
+                  - cell "S/ 0.00" [ref=e664]
+                  - cell "S/ 0.00" [ref=e665]
+                  - cell "GRATIS (Early)" [ref=e666]
+                  - cell "0/2" [ref=e668]
+                  - cell "1/10/2026" [ref=e669]
+                  - cell [ref=e670]:
+                    - button "💳 Recargar" [ref=e671] [cursor=pointer]
+                - row [ref=e672]:
+                  - cell "RA Rosa Alarcón" [ref=e673]:
+                    - generic [ref=e674]:
+                      - generic [ref=e675]: RA
+                      - generic [ref=e676]: Rosa Alarcón
+                  - cell "S/ 0.00" [ref=e677]
+                  - cell "S/ 0.00" [ref=e678]
+                  - cell "GRATIS (Early)" [ref=e679]
+                  - cell "0/2" [ref=e681]
+                  - cell "1/10/2026" [ref=e682]
+                  - cell [ref=e683]:
+                    - button "💳 Recargar" [ref=e684] [cursor=pointer]
+                - row [ref=e685]:
+                  - cell "CM Carlos Méndez" [ref=e686]:
+                    - generic [ref=e687]:
+                      - generic [ref=e688]: CM
+                      - generic [ref=e689]: Carlos Méndez
+                  - cell "S/ 0.00" [ref=e690]
+                  - cell "S/ 0.00" [ref=e691]
+                  - cell "GRATIS (Early)" [ref=e692]
+                  - cell "0/0" [ref=e694]
+                  - cell "1/10/2026" [ref=e695]
+                  - cell [ref=e696]:
+                    - button "💳 Recargar" [ref=e697] [cursor=pointer]
+          - generic [ref=e698]:
+            - heading "Historial Recargas" [level=3] [ref=e700]
+            - table [ref=e702]:
+              - rowgroup [ref=e703]:
+                - row [ref=e704]:
+                  - columnheader "ID" [ref=e705]
+                  - columnheader "Profesional" [ref=e706]
+                  - columnheader "Monto" [ref=e707]
+                  - columnheader "Método" [ref=e708]
+                  - columnheader "Estado" [ref=e709]
+                  - columnheader "Fecha" [ref=e710]
+              - rowgroup
+        - generic [ref=e711]:
+          - heading "Cobros de Membresía" [level=3] [ref=e713]
+          - table [ref=e715]:
+            - rowgroup [ref=e716]:
+              - row [ref=e717]:
+                - columnheader "ID" [ref=e718]
+                - columnheader "Profesional" [ref=e719]
+                - columnheader "Monto" [ref=e720]
+                - columnheader "Período" [ref=e721]
+                - columnheader "Estado" [ref=e722]
+                - columnheader "Saldo posterior" [ref=e723]
+                - columnheader "Fecha" [ref=e724]
+            - rowgroup
+        - generic [ref=e725]:
+          - heading "Equipo Staff" [level=3] [ref=e727]
+          - generic [ref=e728]:
+            - generic [ref=e729]:
+              - generic [ref=e730]: AP
+              - generic [ref=e731]:
+                - heading "Admin Principal" [level=4] [ref=e732]
+                - generic [ref=e733]: admin@handyman.pe
+                - generic [ref=e734]: ADMIN
+              - generic [ref=e735]: all
+              - generic [ref=e737]: "Último: 14/9/2026"
+            - generic [ref=e738]:
+              - generic [ref=e739]: MF
+              - generic:
+                - heading "María Finanzas" [level=4]
+                - generic: finanzas@handyman.pe
+                - generic [ref=e740]: FINANCE
+              - generic [ref=e741]:
+                - generic [ref=e742]: payments
+                - generic [ref=e743]: reports
+                - generic [ref=e744]: commissions
+              - generic [ref=e745]: "Último: 14/9/2026"
+            - generic [ref=e746]:
+              - generic [ref=e747]: CO
+              - generic:
+                - heading "Carlos Operaciones" [level=4]
+                - generic: ops@handyman.pe
+                - generic [ref=e748]: STAFF
+              - generic [ref=e749]:
+                - generic [ref=e750]: payments
+                - generic [ref=e751]: qr-management
+              - generic [ref=e752]: "Último: 14/9/2026"
+    - region [ref=e753]:
+      - generic [ref=e755]:
+        - generic [ref=e756]: Panel de Administración
+        - heading "Bienvenido" [level=2] [ref=e757]
+      - generic [ref=e758]:
+        - generic [ref=e759]:
+          - heading "Roles y Permisos" [level=3] [ref=e760]
+          - text: Configuración de acceso
+        - generic [ref=e761]:
+          - generic [ref=e762]:
+            - strong [ref=e763]: "Rol Actual:"
+            - text: ninguno
+          - generic [ref=e764]:
+            - generic [ref=e765]:
+              - radio "Cliente" [ref=e766]
+              - text: Cliente
+            - generic [ref=e767]:
+              - radio "Profesional" [ref=e768]
+              - text: Profesional
+          - generic [ref=e769]:
+            - generic [ref=e770]:
+              - radio "Staff" [ref=e771]
+              - text: Staff
+            - generic [ref=e772]:
+              - radio "Admin General" [ref=e773]
+              - text: Admin General
+          - paragraph [ref=e774]: Los cambios requieren re-autenticación
+    - region
+    - region
+    - region
+    - region
+    - contentinfo [ref=e775]:
+      - tablist "Navegación principal" [ref=e776]:
+        - tab "🏠 Cliente" [selected] [ref=e777] [cursor=pointer]:
+          - generic [ref=e778]: 🏠
+          - generic [ref=e779]: Cliente
+        - tab "👷 Pro" [ref=e780] [cursor=pointer]:
+          - generic [ref=e781]: 👷
+          - generic [ref=e782]: Pro
+        - tab "📊 Ops" [ref=e783] [cursor=pointer]:
+          - generic [ref=e784]: 📊
+          - generic [ref=e785]: Ops
+        - tab "🏢 Empresa" [ref=e786] [cursor=pointer]:
+          - generic [ref=e787]: 🏢
+          - generic [ref=e788]: Empresa
+    - alert [ref=e789]
+```
