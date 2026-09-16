@@ -8,10 +8,6 @@ on:
 permissions:
   contents: write
 
-env:
-  ANDROID_SDK_ROOT: ${{ github.workspace }}/android-sdk
-  ANDROID_HOME: ${{ github.workspace }}/android-sdk
-
 jobs:
   build-client:
     name: Build Cliente APK/AAB
@@ -36,8 +32,18 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Install Android SDK
-        uses: android-actions/setup-android@v4
+      - name: Setup Android SDK
+        run: |
+          set -e
+          curl -sL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/sdk.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          unzip -q /tmp/sdk.zip -d $HOME/android-sdk/cmdline-tools/latest/
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" 2>&1
+          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: npm ci
@@ -100,8 +106,18 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Install Android SDK
-        uses: android-actions/setup-android@v4
+      - name: Setup Android SDK
+        run: |
+          set -e
+          curl -sL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/sdk.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          unzip -q /tmp/sdk.zip -d $HOME/android-sdk/cmdline-tools/latest/
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" 2>&1
+          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: npm ci
@@ -164,8 +180,18 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Install Android SDK
-        uses: android-actions/setup-android@v4
+      - name: Setup Android SDK
+        run: |
+          set -e
+          curl -sL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/sdk.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          unzip -q /tmp/sdk.zip -d $HOME/android-sdk/cmdline-tools/latest/
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" 2>&1
+          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: npm ci
