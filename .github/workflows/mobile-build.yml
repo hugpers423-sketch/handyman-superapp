@@ -1,0 +1,198 @@
+name: Mobile Build
+
+on:
+  push:
+    branches: [main, develop]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Build platform'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - android
+          - ios
+
+jobs:
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    if: github.event.inputs.platform == 'all' || github.event.inputs.platform == 'android' || github.event.inputs.platform == ''
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'gradle'
+
+      - name: Install dependencies
+        run: |
+          cd handyman-superapp
+          npm ci
+
+      - name: Build web assets
+        run: |
+          cd handyman-superapp
+          npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
+          VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
+
+      - name: Sync Capacitor
+        run: |
+          cd handyman-superapp
+          npx cap sync android
+
+      - name: Configure Gradle
+        run: |
+          cd handyman-superapp/android
+          chmod +x gradlew
+
+      - name: Build Android App Bundle (AAB)
+        run: |
+          cd handyman-superapp/android
+          ./gradlew bundleRelease
+        env:
+          MYAPP_UPLOAD_STORE_FILE: ${{ secrets.ANDROID_KEYSTORE_FILE }}
+          MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          MYAPP_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+
+      - name: Upload Android Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab
+          path: handyman-superapp/android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 30
+
+      - name: Build APK for testing
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        run: |
+          cd handyman-superapp/android
+          ./gradlew assembleDebug
+
+      - name: Upload Debug APK
+        if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-debug
+          path: handyman-superapp/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
+
+  build-ios:
+    name: Build iOS
+    runs-on: macos-latest
+    if: github.event.inputs.platform == 'all' || github.event.inputs.platform == 'ios'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.4'
+
+      - name: Install dependencies
+        run: |
+          cd handyman-superapp
+          npm ci
+
+      - name: Build web assets
+        run: |
+          cd handyman-superapp
+          npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
+          VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
+
+      - name: Sync Capacitor
+        run: |
+          cd handyman-superapp
+          npx cap sync ios
+
+      - name: Install CocoaPods
+        run: |
+          cd handyman-superapp/ios/App
+          pod install --repo-update
+
+      - name: Build iOS
+        run: |
+          cd handyman-superapp/ios/App
+          xcodebuild -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath App.xcarchive \
+            archive \
+            CODE_SIGN_STYLE=Automatic \
+            DEVELOPMENT_TEAM=${{ secrets.IOS_DEVELOPMENT_TEAM }} \
+            PROVISIONING_PROFILE_SPECIFIER=${{ secrets.IOS_PROVISIONING_PROFILE }}
+
+      - name: Export IPA
+        run: |
+          cd handyman-superapp/ios/App
+          xcodebuild -exportArchive \
+            -archivePath App.xcarchive \
+            -exportPath ./build \
+            -exportOptionsPlist ExportOptions.plist
+
+      - name: Upload iOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: handyman-superapp/ios/App/build/App.ipa
+          retention-days: 30
+
+  release:
+    name: Create Release
+    needs: [build-android, build-ios]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Android Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-aab
+          path: artifacts/android
+
+      - name: Download iOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-ipa
+          path: artifacts/ios
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/android/app-release.aab
+            artifacts/ios/App.ipa
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
