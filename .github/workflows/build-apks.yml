@@ -1,12 +1,27 @@
-# ANTES (líneas ~28-32):
+# ANTES:
+- name: Setup Node.js
+  uses: actions/setup-node@v4
+  with:
+    node-version: '20'
+    cache: 'npm'
+    cache-dependency-path: handyman-superapp/package-lock.json
+
 - name: Setup Java
   uses: actions/setup-java@v4
   with:
     distribution: 'temurin'
     java-version: '17'
     cache: gradle
+    cache-dependency-path: handyman-superapp/gradle/wrapper/gradle-wrapper.properties
 
 # DESPUÉS:
+- name: Setup Node.js
+  uses: actions/setup-node@v4
+  with:
+    node-version: '24'
+    cache: 'npm'
+    cache-dependency-path: handyman-superapp/package-lock.json
+
 - name: Setup Java
   uses: actions/setup-java@v4
   with:
