@@ -18,6 +18,26 @@ android {
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
     }
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+        release {
+            // Siempre definido, usa propiedades si existen
+            def storeFileProp = project.hasProperty('MYAPP_UPLOAD_STORE_FILE') ? MYAPP_UPLOAD_STORE_FILE : 'handyman-release.keystore'
+            def storePassProp = project.hasProperty('MYAPP_UPLOAD_STORE_PASSWORD') ? MYAPP_UPLOAD_STORE_PASSWORD : 'android'
+            def keyAliasProp = project.hasProperty('MYAPP_UPLOAD_KEY_ALIAS') ? MYAPP_UPLOAD_KEY_ALIAS : 'androiddebugkey'
+            def keyPassProp = project.hasProperty('MYAPP_UPLOAD_KEY_PASSWORD') ? MYAPP_UPLOAD_KEY_PASSWORD : 'android'
+            
+            storeFile file(storeFileProp)
+            storePassword storePassProp
+            keyAlias keyAliasProp
+            keyPassword keyPassProp
+        }
+    }
     buildTypes {
         release {
             minifyEnabled true
@@ -34,28 +54,9 @@ android {
             signingConfig signingConfigs.debug
         }
     }
-    signingConfigs {
-        debug {
-            storeFile file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
-        }
-        release {
-            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
-                storeFile file(MYAPP_UPLOAD_STORE_FILE)
-                storePassword MYAPP_UPLOAD_STORE_PASSWORD
-                keyAlias MYAPP_UPLOAD_KEY_ALIAS
-                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
-            }
-        }
-    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = '11'
     }
     packagingOptions {
         resources {

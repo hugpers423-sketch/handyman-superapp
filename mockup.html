@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Handyman Super App - Mockup</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a1a; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+.container { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 40px; }
+.app-card {
+  width: 320px; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  transition: transform 0.3s; position: relative;
+}
+.app-card:hover { transform: translateY(-10px) scale(1.02); }
+.phone-frame {
+  background: #1a1a2e; border-radius: 30px; padding: 15px; position: relative;
+  border: 3px solid #333;
+}
+.screen { border-radius: 20px; overflow: hidden; min-height: 600px; }
+.status-bar {
+  background: linear-gradient(135deg, #667eea, #764ba2); padding: 10px 15px;
+  color: white; font-size: 12px; display: flex; justify-content: space-between;
+}
+.app-header { padding: 20px; text-align: center; }
+.app-logo { width: 70px; height: 70px; border-radius: 20px; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: white; }
+.app-name { font-size: 22px; font-weight: bold; color: #333; }
+.app-tagline { font-size: 13px; color: #999; margin-top: 5px; }
+.nav-tabs { display: flex; background: #f0f0f0; margin: 0 15px; border-radius: 12px; overflow: hidden; }
+.nav-tab { flex: 1; text-align: center; padding: 12px; font-size: 11px; color: #999; cursor: pointer; }
+.nav-tab.active { background: #667eea; color: white; }
+.content { padding: 15px; }
+.service-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+.service-card h4 { font-size: 14px; color: #333; margin-bottom: 5px; }
+.service-card p { font-size: 11px; color: #999; }
+.price { color: #667eea; font-weight: bold; font-size: 16px; }
+.btn { display: block; width: 100%; padding: 12px; border: none; border-radius: 12px; color: white; font-size: 14px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+.btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); }
+.btn-success { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #333; }
+.btn-warning { background: linear-gradient(135deg, #f093fb, #f5576c); }
+.qr-area { background: white; border-radius: 15px; padding: 20px; text-align: center; margin: 10px 0; }
+.qr-box { width: 150px; height: 150px; background: #f0f0f0; margin: 0 auto; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.profile { display: flex; align-items: center; gap: 10px; padding: 10px; background: white; border-radius: 12px; margin-bottom: 10px; }
+.avatar { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
+.badge { padding: 3px 8px; border-radius: 10px; font-size: 10px; color: white; }
+.badge-verified { background: #43e97b; }
+.badge-pro { background: #f5576c; }
+.badge-staff { background: #667eea; }
+.tab-indicator { height: 3px; background: linear-gradient(135deg, #667eea, #764ba2); margin: 0 15px; border-radius: 3px; }
+.gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
+.gallery-item { height: 60px; border-radius: 8px; }
+.chart { display: flex; align-items: flex-end; gap: 5px; padding: 10px; height: 100px; }
+.chart-bar { flex: 1; border-radius: 5px 5px 0 0; min-height: 10px; }
+.floating-btn { position: absolute; bottom: 20px; right: 20px; width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 5px 20px rgba(102,126,234,0.4); }
+/* Colors por app */
+.cliente .screen { background: #f5f7fa; }
+.cliente .app-logo { background: linear-gradient(135deg, #1e3a5f, #2d5a8a); }
+.cliente .status-bar { background: linear-gradient(135deg, #1e3a5f, #2d5a8a); }
+.cliente .btn-primary { background: linear-gradient(135deg, #1e3a5f, #2d5a8a); }
+
+.pro .screen { background: #f0fdf4; }
+.pro .app-logo { background: linear-gradient(135deg, #0d4d2e, #10b981); }
+.pro .status-bar { background: linear-gradient(135deg, #0d4d2e, #10b981); }
+.pro .btn-success { background: linear-gradient(135deg, #0d4d2e, #10b981); }
+.pro .price { color: #0d4d2e; }
+
+.staff .screen { background: #fff7ed; }
+.staff .app-logo { background: linear-gradient(135deg, #7c2d12, #f97316); }
+.staff .status-bar { background: linear-gradient(135deg, #7c2d12, #f97316); }
+.staff .btn-warning { background: linear-gradient(135deg, #7c2d12, #f97316); }
+
+.admin .screen { background: #faf5ff; }
+.admin .app-logo { background: linear-gradient(135deg, #581c87, #a855f7); }
+.admin .status-bar { background: linear-gradient(135deg, #581c87, #a855f7); }
+.admin .btn-primary { background: linear-gradient(135deg, #581c87, #a855f7); }
+/* Dashboard */
+.dashboard-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+.stat-box { background: white; border-radius: 10px; padding: 10px; text-align: center; }
+.stat-value { font-size: 20px; font-weight: bold; color: #333; }
+.stat-label { font-size: 10px; color: #999; }
+.tasks-list { list-style: none; }
+.tasks-list li { padding: 10px; background: white; border-radius: 8px; margin-bottom: 5px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
+.tasks-list li.completed { opacity: 0.6; text-decoration: line-through; }
+.tasks-list .task-status { width: 8px; height: 8px; border-radius: 50%; }
+.task-status.pending { background: #f59e0b; }
+.task-status.done { background: #10b981; }
+.task-status.in-progress { background: #3b82f6; }
+/* Protection section */
+.protection-card { background: white; border-radius: 15px; padding: 20px; margin: 10px 0; border-left: 4px solid #ef4444; }
+.protection-card h3 { font-size: 16px; color: #ef4444; margin-bottom: 5px; }
+.protection-card p { font-size: 11px; color: #999; }
+.progress-bar { width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; margin: 5px 0; }
+.progress-fill { height: 100%; border-radius: 3px; background: linear-gradient(135deg, #ef4444, #f59e0b); }
+/* Admin Panel */
+.admin-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+.admin-table th { background: #f3f4f6; padding: 8px; text-align: left; font-size: 11px; color: #666; }
+.admin-table td { padding: 8px; font-size: 11px; border-bottom: 1px solid #eee; }
+.admin-table .status-active { color: #10b981; font-weight: bold; }
+.admin-table .status-pending { color: #f59e0b; font-weight: bold; }
+/* Background animation */
+.bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.1; }
+.bg-animation .orb { position: absolute; border-radius: 50%; filter: blur(60px); animation: float 8s ease-in-out infinite; }
+.bg-animation .orb:nth-child(1) { width: 400px; height: 400px; background: #667eea; top: 10%; left: 20%; animation-delay: 0s; }
+.bg-animation .orb:nth-child(2) { width: 300px; height: 300px; background: #764ba2; top: 60%; left: 70%; animation-delay: 2s; }
+.bg-animation .orb:nth-child(3) { width: 350px; height: 350px; background: #f093fb; top: 30%; left: 50%; animation-delay: 4s; }
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-30px) rotate(120deg); }
+  66% { transform: translateY(20px) rotate(240deg); }
+}
+.title { text-align: center; padding: 30px; color: white; }
+.title h1 { font-size: 36px; background: linear-gradient(135deg, #667eea, #764ba2, #f093fb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: glow 3s ease-in-out infinite alternate; }
+@keyframes glow {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.3); }
+}
+.title p { color: #aaa; font-size: 16px; margin-top: 10px; }
+.badge-row { display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
+.badge-type { padding: 8px 20px; border-radius: 30px; font-size: 13px; font-weight: bold; color: white; }
+.badge-type.cliente { background: linear-gradient(135deg, #1e3a5f, #2d5a8a); }
+.badge-type.pro { background: linear-gradient(135deg, #0d4d2e, #10b981); }
+.badge-type.staff { background: linear-gradient(135deg, #7c2d12, #f97316); }
+.badge-type.admin { background: linear-gradient(135deg, #581c87, #a855f7); }
+/* Responsive */
+@media (max-width: 1100px) { .container { padding: 20px; } .app-card { width: 280px; } }
+</style>
+</head>
+<body>
+<div class="bg-animation"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+
+<div class="title">
+<h1>⚡ HANDYMAN SUPER APP</h1>
+<p>Arquitectura Multiplataforma - 3 APKs + Web Admin</p>
+<div class="badge-row">
+<span class="badge-type cliente">📱 CLIENTE</span>
+<span class="badge-type pro">🔧 OPERARIO</span>
+<span class="badge-type staff">👥 STAFF</span>
+<span class="badge-type admin">🖥️ ADMIN WEB</span>
+</div>
+</div>
+
+<div class="container">
+
+<!-- CLIENTE -->
+<div class="app-card cliente">
+<div class="phone-frame">
+<div class="screen">
+<div class="status-bar"><span>📍 Lima, Peru</span><span>9:41</span></div>
+<div class="app-header">
+<div class="app-logo">H</div>
+<div class="app-name">Handyman</div>
+<div class="app-tagline">Servicios profesionales a tu alcance</div>
+</div>
+<div class="nav-tabs">
+<div class="nav-tab active">🏠 Inicio</div>
+<div class="nav-tab">🔍 Buscar</div>
+<div class="nav-tab">📋 Mis Trabajos</div>
+<div class="nav-tab">👤 Perfil</div>
+</div>
+<div class="tab-indicator"></div>
+<div class="content">
+<div class="service-card">
+<h4>🛠️ Electricista - Juan Pérez</h4>
+<p>⭐ 4.9 (128 reseñas) | Verificado ✓</p>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span class="price">S/ 85.00</span><span style="font-size:11px;color:#999">2h estimado</span></div>
+<button class="btn btn-primary">Solicitar Servicio</button>
+</div>
+<div class="service-card">
+<h4>🔥 Plomero - María López</h4>
+<p>⭐ 4.8 (95 reseñas) | Verificado ✓</p>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span class="price">S/ 65.00</span><span style="font-size:11px;color:#999">1.5h estimado</span></div>
+<button class="btn btn-primary">Solicitar Servicio</button>
+</div>
+<div class="service-card">
+<h4>🏠 Pintor - Carlos Ruiz</h4>
+<p>⭐ 5.0 (67 reseñas) | Protección Activada 🛡️</p>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><span class="price">S/ 120.00</span><span style="font-size:11px;color:#999">3h estimado</span></div>
+<button class="btn btn-primary">Solicitar Servicio</button>
+</div>
+<div style="height:80px"></div>
+<div class="floating-btn">💬</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- PRO/OPERARIO -->
+<div class="app-card pro">
+<div class="phone-frame">
+<div class="screen">
+<div class="status-bar"><span>🔒 Sesión activa</span><span>9:41</span></div>
+<div class="app-header">
+<div class="app-logo">P</div>
+<div class="app-name">Handyman Pro</div>
+<div class="app-tagline">Gana más, trabaja seguro</div>
+</div>
+<div class="nav-tabs">
+<div class="nav-tab">📊 Mi Panel</div>
+<div class="nav-tab active">📋 Trabajos</div>
+<div class="nav-tab">📸 Evidencia</div>
+<div class="nav-tab">💰 Ganancias</div>
+</div>
+<div class="tab-indicator"></div>
+<div class="content">
+<div style="background:white;border-radius:12px;padding:15px;margin-bottom:10px">
+<div style="display:flex;justify-content:space-between;margin-bottom:10px">
+<div><div class="stat-value" style="font-size:28px;color:#0d4d2e">S/ 2,450</div><div class="stat-label">Este mes</div></div>
+<div><div class="stat-value" style="font-size:28px;color:#10b981">12</div><div class="stat-label">Trabajos</div></div>
+</div>
+<div class="progress-bar"><div class="progress-fill" style="width:78%"></div></div>
+<div style="font-size:11px;color:#999;margin-top:5px">Meta mensual: S/ 3,140 (78%)</div>
+</div>
+<div style="background:white;border-radius:12px;padding:15px;margin-bottom:10px">
+<h4 style="font-size:14px;margin-bottom:8px">🔔 Nuevos trabajos disponibles</h4>
+<div class="tasks-list">
+<li><span>Instalación eléctrica - Miraflores</span><span class="task-status in-progress"></span></li>
+<li><span>Reparación plomería - San Isidro</span><span class="task-status pending"></span></li>
+<li><span>Pintura exterior - Surquillo</span><span class="task-status pending"></span></li>
+</div>
+<button class="btn btn-success" style="margin-top:10px">Aceptar Trabajo</button>
+</div>
+<div class="protection-card">
+<h3>🛡️ Protección Activada</h3>
+<p>Cobertura: S/ 50,000 | Aporte: S/ 2.55 (3% del trabajo)</p>
+<div class="progress-bar"><div class="progress-fill" style="width:45%"></div></div>
+<div style="font-size:11px;color:#999;margin-top:5px">Seguro activo: 45 días restantes</div>
+</div>
+<div style="height:70px"></div>
+<div class="floating-btn">📸</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- STAFF -->
+<div class="app-card staff">
+<div class="phone-frame">
+<div class="screen">
+<div class="status-bar"><span>👥 Staff Mode</span><span>9:41</span></div>
+<div class="app-header">
+<div class="app-logo">S</div>
+<div class="app-name">Handyman Staff</div>
+<div class="app-tagline">Gestión de equipos y operaciones</div>
+</div>
+<div class="nav-tabs">
+<div class="nav-tab">📊 Dashboard</div>
+<div class="nav-tab active">👥 Equipos</div>
+<div class="nav-tab">📋 Asignar</div>
+<div class="nav-tab">📈 Reportes</div>
+</div>
+<div class="tab-indicator"></div>
+<div class="content">
+<div class="dashboard-stats">
+<div class="stat-box"><div class="stat-value">8</div><div class="stat-label">Activos</div></div>
+<div class="stat-box"><div class="stat-value">23</div><div class="stat-label">Trabajos Hoy</div></div>
+<div class="stat-box"><div class="stat-value">96%</div><div class="stat-label">Cumplimiento</div></div>
+<div class="stat-box"><div class="stat-value">S/ 18K</div><div class="stat-label">Ingresos</div></div>
+</div>
+<div style="background:white;border-radius:12px;padding:15px;margin-bottom:10px">
+<h4 style="font-size:14px;margin-bottom:10px">👥 Equipos Activos</h4>
+<div class="tasks-list">
+<li><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#1e3a5f">JP</div><div><div style="font-size:12px;font-weight:bold">Equipo Lima Norte</div><div style="font-size:10px;color:#999">4 operarios</div></div></div><span class="task-status done"></span></li>
+<li><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#0d4d2e">SM</div><div><div style="font-size:12px;font-weight:bold">Equipo Sur</div><div style="font-size:10px;color:#999">3 operarios</div></div></div><span class="task-status in-progress"></span></li>
+<li><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:#7c2d12">MG</div><div><div style="font-size:12px;font-weight:bold">Equipo Este</div><div style="font-size:10px;color:#999">2 operarios</div></div></div><span class="task-status pending"></span></li>
+</div>
+<button class="btn btn-warning" style="margin-top:10px">+ Nuevo Equipo</button>
+</div>
+<div style="height:70px"></div>
+<div class="floating-btn">📊</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ADMIN WEB -->
+<div class="app-card admin">
+<div class="phone-frame">
+<div class="screen">
+<div class="status-bar"><span>🖥️ Admin Panel</span><span>9:41</span></div>
+<div class="app-header">
+<div class="app-logo">A</div>
+<div class="app-name">Handyman Admin</div>
+<div class="app-tagline">Panel de control completo</div>
+</div>
+<div class="nav-tabs">
+<div class="nav-tab active">📊 Dashboard</div>
+<div class="nav-tab">👤 Usuarios</div>
+<div class="nav-tab">📈 Finanzas</div>
+<div class="nav-tab">⚙️ Config</div>
+</div>
+<div class="tab-indicator"></div>
+<div class="content">
+<div class="dashboard-stats">
+<div class="stat-box"><div class="stat-value">1,247</div><div class="stat-label">Usuarios</div></div>
+<div class="stat-box"><div class="stat-value">389</div><div class="stat-label">Pro</div></div>
+<div class="stat-box"><div class="stat-value">S/ 156K</div><div class="stat-label">Ventas</div></div>
+<div class="stat-box"><div class="stat-value">4.7★</div><div class="stat-label">Rating</div></div>
+</div>
+<div style="background:white;border-radius:12px;padding:15px;margin-bottom:10px">
+<h4 style="font-size:14px;margin-bottom:10px">📈 Ventas Últimos 7 Días</h4>
+<div class="chart">
+<div class="chart-bar" style="height:60%;background:linear-gradient(135deg,#581c87,#a855f7)"></div>
+<div class="chart-bar" style="height:80%;background:linear-gradient(135deg,#581c87,#a855f7)"></div>
+<div class="chart-bar" style="height:45%;background:linear-gradient(135deg,#581c87,#a855f7)"></div>
+<div class="chart-bar" style="height:90%;background:linear-gradient(135deg,#581c87,#a855f7)"></div>
+<div class="chart-bar" style="height:70%;background:linear-gradient(135deg,#581c87,#a855f7)"></div>
+<div class="chart-bar" style="height:55%;background:linear-gradient(135deg,#581c87,#a855f7)"></div>
+<div class="chart-bar" style="height:95%;background:linear-gradient(135deg,#581c87,#a855f7)"></div>
+</div>
+</div>
+<table class="admin-table">
+<thead><tr><th>Usuario</th><th>Rol</th><th>Estado</th></tr></thead>
+<tbody>
+<tr><td>Ana García</td><td>Pro</td><td class="status-active">Activo</td></tr>
+<tr><td>Carlos López</td><td>Staff</td><td class="status-active">Activo</td></tr>
+<tr><td>María Torres</td><td>Cliente</td><td class="status-pending">Verificando</td></tr>
+<tr><td>Juan Pérez</td><td>Pro</td><td class="status-active">Activo</td></tr>
+</tbody>
+</table>
+<div style="height:70px"></div>
+<div class="floating-btn">⚙️</div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+
+<div style="text-align:center;padding:40px;color:#666;font-size:13px">
+<p>⚡ Handyman Super App v1.0.2 | 3 APKs + Web Admin</p>
+<p>Builds generados con: <span style="color:#667eea">Vite + Preact + Capacitor + Express + Prisma</span></p>
+<p style="margin-top:5px;font-size:11px">GitHub Actions: 🔄 Automático | Local: ✅ Listo para compilar</p>
+</div>
+</body>
+</html>

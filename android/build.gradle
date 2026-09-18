@@ -22,6 +22,10 @@ allprojects {
         google()
         mavenCentral()
     }
+    
+    tasks.withType(JavaCompile).configureEach {
+        javaCompiler = null
+    }
 }
 
 task clean(type: Delete) {
