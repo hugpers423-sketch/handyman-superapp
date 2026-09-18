@@ -12,7 +12,10 @@ jobs:
   build-client:
     name: Build Cliente APK/AAB
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: handyman-superapp
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,49 +23,52 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: handyman-superapp/package-lock.json
+          node-version: '24'
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
-          cache: 'gradle'
+          java-version: '17'
+          cache: gradle
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        run: |
+          set -e
+          curl -sL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/sdk.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          unzip -q /tmp/sdk.zip -d $HOME/android-sdk/cmdline-tools/latest/
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" 2>&1
+          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
 
       - name: Install dependencies
-        run: |
-          cd handyman-superapp
-          npm ci
+        run: npm ci
 
       - name: Build web assets (Cliente)
-        run: |
-          cd handyman-superapp
-          npm run build:client
+        run: npm run build:client
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
           VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
 
       - name: Sync Capacitor (Cliente)
-        run: |
-          cd handyman-superapp
-          npx cap sync android --config capacitor.config.client.ts
+        run: npx cap sync android --config capacitor.config.client.ts
 
       - name: Decode Keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > handyman-superapp/android/app/handyman-release.keystore
+        run: echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > android/app/handyman-release.keystore
 
       - name: Build Android (Cliente)
         run: |
-          cd handyman-superapp/android
+          cd android
           chmod +x gradlew
           ./gradlew bundleRelease assembleRelease
         env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
           MYAPP_UPLOAD_STORE_FILE: handyman-release.keystore
           MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
           MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -73,14 +79,17 @@ jobs:
         with:
           name: cliente-release
           path: |
-            handyman-superapp/android/app/build/outputs/bundle/release/*.aab
-            handyman-superapp/android/app/build/outputs/apk/release/*.apk
+            android/app/build/outputs/bundle/release/*.aab
+            android/app/build/outputs/apk/release/*.apk
           retention-days: 30
 
   build-pro:
     name: Build Operario/Pro APK/AAB
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: handyman-superapp
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -88,49 +97,52 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: handyman-superapp/package-lock.json
+          node-version: '24'
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
-          cache: 'gradle'
+          java-version: '17'
+          cache: gradle
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        run: |
+          set -e
+          curl -sL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/sdk.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          unzip -q /tmp/sdk.zip -d $HOME/android-sdk/cmdline-tools/latest/
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" 2>&1
+          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
 
       - name: Install dependencies
-        run: |
-          cd handyman-superapp
-          npm ci
+        run: npm ci
 
       - name: Build web assets (Pro)
-        run: |
-          cd handyman-superapp
-          npm run build:pro
+        run: npm run build:pro
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
           VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
 
       - name: Sync Capacitor (Pro)
-        run: |
-          cd handyman-superapp
-          npx cap sync android --config capacitor.config.pro.ts
+        run: npx cap sync android --config capacitor.config.pro.ts
 
       - name: Decode Keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > handyman-superapp/android/app/handyman-release.keystore
+        run: echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > android/app/handyman-release.keystore
 
       - name: Build Android (Pro)
         run: |
-          cd handyman-superapp/android
+          cd android
           chmod +x gradlew
           ./gradlew bundleRelease assembleRelease
         env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
           MYAPP_UPLOAD_STORE_FILE: handyman-release.keystore
           MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
           MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -141,14 +153,17 @@ jobs:
         with:
           name: pro-release
           path: |
-            handyman-superapp/android/app/build/outputs/bundle/release/*.aab
-            handyman-superapp/android/app/build/outputs/apk/release/*.apk
+            android/app/build/outputs/bundle/release/*.aab
+            android/app/build/outputs/apk/release/*.apk
           retention-days: 30
 
   build-staff:
     name: Build Staff APK/AAB
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: handyman-superapp
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -156,49 +171,52 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: handyman-superapp/package-lock.json
+          node-version: '24'
 
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '11'
-          cache: 'gradle'
+          java-version: '17'
+          cache: gradle
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        run: |
+          set -e
+          curl -sL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/sdk.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools/latest
+          unzip -q /tmp/sdk.zip -d $HOME/android-sdk/cmdline-tools/latest/
+          yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses 2>/dev/null || true
+          $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" 2>&1
+          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
 
       - name: Install dependencies
-        run: |
-          cd handyman-superapp
-          npm ci
+        run: npm ci
 
       - name: Build web assets (Staff)
-        run: |
-          cd handyman-superapp
-          npm run build:staff
+        run: npm run build:staff
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
           VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
 
       - name: Sync Capacitor (Staff)
-        run: |
-          cd handyman-superapp
-          npx cap sync android --config capacitor.config.staff.ts
+        run: npx cap sync android --config capacitor.config.staff.ts
 
       - name: Decode Keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > handyman-superapp/android/app/handyman-release.keystore
+        run: echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > android/app/handyman-release.keystore
 
       - name: Build Android (Staff)
         run: |
-          cd handyman-superapp/android
+          cd android
           chmod +x gradlew
           ./gradlew bundleRelease assembleRelease
         env:
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
           MYAPP_UPLOAD_STORE_FILE: handyman-release.keystore
           MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
           MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
@@ -209,8 +227,8 @@ jobs:
         with:
           name: staff-release
           path: |
-            handyman-superapp/android/app/build/outputs/bundle/release/*.aab
-            handyman-superapp/android/app/build/outputs/apk/release/*.apk
+            android/app/build/outputs/bundle/release/*.aab
+            android/app/build/outputs/apk/release/*.apk
           retention-days: 30
 
   create-release:
@@ -237,15 +255,6 @@ jobs:
         with:
           name: staff-release
           path: artifacts/staff
-
-      - name: List artifacts
-        run: |
-          echo "=== Cliente ==="
-          ls -la artifacts/cliente/
-          echo "=== Pro ==="
-          ls -la artifacts/pro/
-          echo "=== Staff ==="
-          ls -la artifacts/staff/
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
