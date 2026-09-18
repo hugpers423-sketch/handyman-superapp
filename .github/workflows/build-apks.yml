@@ -1,31 +1,170 @@
-# ANTES:
-- name: Setup Node.js
-  uses: actions/setup-node@v4
-  with:
-    node-version: '20'
-    cache: 'npm'
-    cache-dependency-path: handyman-superapp/package-lock.json
 
-- name: Setup Java
-  uses: actions/setup-java@v4
-  with:
-    distribution: 'temurin'
-    java-version: '17'
-    cache: gradle
-    cache-dependency-path: handyman-superapp/gradle/wrapper/gradle-wrapper.properties
+name: Build 3 APKs + AABs
 
-# DESPUÉS:
-- name: Setup Node.js
-  uses: actions/setup-node@v4
-  with:
-    node-version: '24'
-    cache: 'npm'
-    cache-dependency-path: handyman-superapp/package-lock.json
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
 
-- name: Setup Java
-  uses: actions/setup-java@v4
-  with:
-    distribution: 'temurin'
-    java-version: '17'
-    cache: gradle
-    cache-dependency-path: handyman-superapp/gradle/wrapper/gradle-wrapper.properties
+permissions:
+  contents: write
+
+jobs:
+  build-client:
+    name: Build Cliente APK/AAB
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: handyman-superapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - run: npm run build:client
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
+          VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
+      - run: npx cap sync android --config capacitor.config.client.ts
+      - run: echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > android/app/handyman-release.keystore
+      - run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease assembleRelease
+        env:
+          MYAPP_UPLOAD_STORE_FILE: handyman-release.keystore
+          MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
+          MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          MYAPP_UPLOAD_KEY_PASSWORD: ${{ secrets.KEY_PASS }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cliente-release
+          path: |
+            android/app/build/outputs/bundle/release/*.aab
+            android/app/build/outputs/apk/release/*.apk
+          retention-days: 30
+
+  build-pro:
+    name: Build Operario/Pro APK/AAB
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: handyman-superapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - run: npm run build:pro
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
+          VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
+      - run: npx cap sync android --config capacitor.config.pro.ts
+      - run: echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > android/app/handyman-release.keystore
+      - run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease assembleRelease
+        env:
+          MYAPP_UPLOAD_STORE_FILE: handyman-release.keystore
+          MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
+          MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          MYAPP_UPLOAD_KEY_PASSWORD: ${{ secrets.KEY_PASS }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pro-release
+          path: |
+            android/app/build/outputs/bundle/release/*.aab
+            android/app/build/outputs/apk/release/*.apk
+          retention-days: 30
+
+  build-staff:
+    name: Build Staff APK/AAB
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: handyman-superapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - run: npm run build:staff
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
+          VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
+      - run: npx cap sync android --config capacitor.config.staff.ts
+      - run: echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > android/app/handyman-release.keystore
+      - run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease assembleRelease
+        env:
+          MYAPP_UPLOAD_STORE_FILE: handyman-release.keystore
+          MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
+          MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          MYAPP_UPLOAD_KEY_PASSWORD: ${{ secrets.KEY_PASS }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: staff-release
+          path: |
+            android/app/build/outputs/bundle/release/*.aab
+            android/app/build/outputs/apk/release/*.apk
+          retention-days: 30
+
+  create-release:
+    needs: [build-client, build-pro, build-staff]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: cliente-release
+          path: artifacts/cliente
+      - uses: actions/download-artifact@v4
+        with:
+          name: pro-release
+          path: artifacts/pro
+      - uses: actions/download-artifact@v4
+        with:
+          name: staff-release
+          path: artifacts/staff
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/cliente/*.aab
+            artifacts/cliente/*.apk
+            artifacts/pro/*.aab
+            artifacts/pro/*.apk
+            artifacts/staff/*.aab
+            artifacts/staff/*.apk
+          generate_release_notes: true
+          tag_name: ${{ github.ref_name }}
+          name: "Handyman v${{ github.ref_name }} - 3 APKs + AABs"
+        env:
+GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
